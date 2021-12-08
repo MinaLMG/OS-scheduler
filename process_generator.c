@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         p->finish_time = -1;
         // printProcess(p);
 
-        insert_by_priority_arrival_time(q, p);
+        insert_by_priority(q, p,'a');
         // printProcess( pri_que[0]);
         // printf("after a loop in file:\n");
         // display_pqueue();
