@@ -150,7 +150,6 @@ void clearResources(int signum)
 /*int main()
 {
     struct Node *start = NULL;
-
     // Create and print an int linked list
     unsigned int_size = sizeof(int);
     int arr[] = {10, 20, 30, 40, 50}, i;
@@ -158,7 +157,6 @@ void clearResources(int signum)
        push(&start, &arr[i], int_size);
     printf("Created integer linked list is \n");
     printList(start, printInt);
-
     // Create and print a float linked list
     unsigned float_size = sizeof(float);
     start = NULL;
@@ -167,6 +165,5 @@ void clearResources(int signum)
        push(&start, &arr2[i], float_size);
     printf("\n\nCreated float linked list is \n");
     printList(start, printFloat);
-
     return 0;
 }*/
