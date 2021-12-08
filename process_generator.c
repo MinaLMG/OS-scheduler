@@ -21,7 +21,18 @@ int main(int argc, char * argv[])
     while(!feof(fptr)){
         struct Process p1;
         struct Process *p=&p1;
-        fscanf(fptr,"%d", &p->id);
+        char firstString [256];
+        fscanf(fptr,"%s", firstString);
+        if(firstString[0]=='#'){
+            char ignore[1024];
+            fgets(ignore, sizeof(ignore), fptr);
+            continue;
+        }
+        else{
+           /*printf("doesn't start with #");*/
+           p->id=strtol(firstString,NULL,10);
+        }
+       
 
         printf("Value of id =%d \n", (p->id));
 
