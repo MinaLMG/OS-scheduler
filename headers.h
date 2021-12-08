@@ -132,13 +132,20 @@ struct Process
 };
 void printProcess(struct Process *p)
 {
-    printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n ",
-           p->id,
-           p->run_time,
-           p->arrival_time,
-           p->priority,
-           p->remaining_time,
-           p->finish_time);
+    if (p != NULL)
+    {
+        printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n ",
+               p->id,
+               p->run_time,
+               p->arrival_time,
+               p->priority,
+               p->remaining_time,
+               p->finish_time);
+    }
+    else
+    {
+        printf("Null Process!!\n");
+    }
 }
 /*
 
@@ -152,19 +159,23 @@ void printProcess(struct Process *p)
 
 #define MAX 500
 
-void insert_by_priority(struct Process *);
+struct Queue
+{
+    struct Process *rear;
+    struct Process *front;
+    struct Process *pri_que[MAX];
+};
 
-void delete_by_priority(struct Process *);
+void insert_by_priority(struct Queue *, struct Process *);
 
-void create();
+void delete_by_priority(struct Queue *, struct Process *);
+struct Process *dequeue(struct Queue *);
 
-void check(struct Process *);
+struct Queue *create();
 
-void display_pqueue();
+void check(struct Queue *, struct Process *);
 
-struct Process *pri_que[MAX];
-
-struct Process *front, *rear;
+void display_queue(struct Queue *);
 
 /*void main()
 
@@ -237,22 +248,52 @@ struct Process *pptr1 = &p1;
 struct Process p2;
 struct Process *pptr2 = &p2;
 
-void create()
+struct Queue *create()
 {
+    struct Queue *q = (struct Queue *)malloc(sizeof(struct Queue));
     pptr1->arrival_time = -1;
-    front = pptr1;
+    q->front = pptr1;
     pptr2->arrival_time = -1;
-    rear = pptr2;
+    q->rear = pptr2;
+    return q;
     // printf("rearin create =%d\n ", rear->arrival_time);
 }
-
+//----------------------------------dequeue
+struct Process *dequeue(struct Queue *q)
+{
+    if (q->front->arrival_time == -1 && q->rear->arrival_time == -1)
+    {
+        printf("The queue is empty!\n");
+        return NULL;
+    }
+    else if (q->rear->arrival_time == 0)
+    {
+        q->rear->arrival_time = -1;
+        q->front->arrival_time = -1;
+        struct Process *temp = q->pri_que[0];
+        q->pri_que[0] = NULL;
+        return temp;
+    }
+    else
+    {
+        q->rear->arrival_time--;
+        struct Process *temp = q->pri_que[0];
+        for (int i = 0; i <= q->rear->arrival_time; i++)
+        {
+            q->pri_que[i] = q->pri_que[i + 1];
+        }
+        q->pri_que[q->rear->arrival_time + 1] = NULL;
+        return temp;
+    }
+}
+//----------------------------------------
 /* Function to insert value into priority queue */
 
-void insert_by_priority(struct Process *p)
+void insert_by_priority_arrival_time(struct Queue *q, struct Process *p)
 
 {
 
-    if (rear->arrival_time >= MAX - 1)
+    if (q->rear->arrival_time >= MAX - 1)
 
     {
 
@@ -261,75 +302,215 @@ void insert_by_priority(struct Process *p)
         return;
     }
 
-    if ((front->arrival_time == -1) && (rear->arrival_time == -1))
+    if ((q->front->arrival_time == -1) && (q->rear->arrival_time == -1))
 
     {
         // printf("rear in first initialization=%d\n ", rear->arrival_time);
         // printf("inserting the first process ...rear = %d \n ", rear->arrival_time);
-        front->arrival_time += 1;
+        q->front->arrival_time += 1;
 
-        rear->arrival_time += 1;
-        // printf("rear after ++ =%d\n ", rear->arrival_time);
-        pri_que[rear->arrival_time] = p;
+        q->rear->arrival_time += 1;
+        // printf("q->rear after ++ =%d\n ", q->rear->arrival_time);
+        q->pri_que[q->rear->arrival_time] = p;
 
         return;
     }
 
     else
-        // rear->arrival_time--;
-        // printf("rear before check=%d\n ", rear->arrival_time);
-    // display_pqueue();
-    // printProcess(p);
-    check(p);
+        // q->rear->arrival_time--;
+        // printf("q->rear before check=%d\n ", q->rear->arrival_time);
+        // display_pqueue();
+        // printProcess(p);
+        check(q, p);
     // printf("ana hena");
-    rear->arrival_time++;
+    q->rear->arrival_time++;
+}
+
+void insert_by_priority_priority(struct Queue *q, struct Process *p)
+
+{
+
+    if (q->rear->arrival_time >= MAX - 1)
+
+    {
+
+        printf("\nQueue overflow no more elements can be inserted");
+
+        return;
+    }
+
+    if ((q->front->arrival_time == -1) && (q->rear->arrival_time == -1))
+
+    {
+        // printf("rear in first initialization=%d\n ", rear->arrival_time);
+        // printf("inserting the first process ...rear = %d \n ", rear->arrival_time);
+        q->front->arrival_time += 1;
+
+        q->rear->arrival_time += 1;
+        // printf("q->rear after ++ =%d\n ", q->rear->arrival_time);
+        q->pri_que[q->rear->arrival_time] = p;
+
+        return;
+    }
+
+    else
+        // q->rear->arrival_time--;
+        // printf("q->rear before check=%d\n ", q->rear->arrival_time);
+        // display_pqueue();
+        // printProcess(p);
+        check_priority(q, p);
+    // printf("ana hena");
+    q->rear->arrival_time++;
+}
+
+void insert_by_priority_remaining_time(struct Queue *q, struct Process *p)
+
+{
+
+    if (q->rear->arrival_time >= MAX - 1)
+
+    {
+
+        printf("\nQueue overflow no more elements can be inserted");
+
+        return;
+    }
+
+    if ((q->front->arrival_time == -1) && (q->rear->arrival_time == -1))
+
+    {
+        // printf("rear in first initialization=%d\n ", rear->arrival_time);
+        // printf("inserting the first process ...rear = %d \n ", rear->arrival_time);
+        q->front->arrival_time += 1;
+
+        q->rear->arrival_time += 1;
+        // printf("q->rear after ++ =%d\n ", q->rear->arrival_time);
+        q->pri_que[q->rear->arrival_time] = p;
+
+        return;
+    }
+
+    else
+        // q->rear->arrival_time--;
+        // printf("q->rear before check=%d\n ", q->rear->arrival_time);
+        // display_pqueue();
+        // printProcess(p);
+        check_remaining_time(q, p);
+    // printf("ana hena");
+    q->rear->arrival_time++;
 }
 
 /* Function to check priority and place element */
 
-void check(struct Process *p)
+void check(struct Queue *q, struct Process *p)
 
 {
 
-    // printf("inserting another process ..rear = %d\n ", rear->arrival_time);
+    // printf("inserting another process ..q->rear = %d\n ", q->rear->arrival_time);
     int i, j;
     // printf("from check function\n");
     // display_pqueue();
-    printf("ana aho %d\n",rear->arrival_time);
-    for (i = 0; i <= rear->arrival_time; i++)
+    printf("ana aho %d\n", q->rear->arrival_time);
+    for (i = 0; i <= q->rear->arrival_time; i++)
 
     {
         // printf("pat=%d\n", p->arrival_time);
         // printf("priqat=%d\n", pri_que[i]->arrival_time);
-        if (p->arrival_time < pri_que[i]->arrival_time)
+        if (p->arrival_time < q->pri_que[i]->arrival_time)
 
         {
-            printf("entered if condition %d \n", i);
-            for (j = rear->arrival_time + 1; j > i; j--)
+            // printf("entered if condition %d \n", i);
+            for (j = q->rear->arrival_time + 1; j > i; j--)
 
             {
-                printf("entered \n");
-                pri_que[j] = pri_que[j - 1];
+                // printf("entered \n");
+                q->pri_que[j] = q->pri_que[j - 1];
             }
 
-            pri_que[i] = p;
+            q->pri_que[i] = p;
 
             return;
         }
     }
 
-    pri_que[i] = p;
+    q->pri_que[i] = p;
+}
+void check_priority(struct Queue *q, struct Process *p)
+
+{
+
+    // printf("inserting another process ..q->rear = %d\n ", q->rear->arrival_time);
+    int i, j;
+    // printf("from check function\n");
+    // display_pqueue();
+    printf("ana aho %d\n", q->rear->arrival_time);
+    for (i = 0; i <= q->rear->arrival_time; i++)
+
+    {
+        // printf("pat=%d\n", p->arrival_time);
+        // printf("priqat=%d\n", pri_que[i]->arrival_time);
+        if (p->priority < q->pri_que[i]->priority)
+
+        {
+            // printf("entered if condition %d \n", i);
+            for (j = q->rear->arrival_time + 1; j > i; j--)
+
+            {
+                // printf("entered \n");
+                q->pri_que[j] = q->pri_que[j - 1];
+            }
+
+            q->pri_que[i] = p;
+
+            return;
+        }
+    }
+
+    q->pri_que[i] = p;
+}
+void check_remaining_time(struct Queue *q, struct Process *p)
+
+{
+
+    // printf("inserting another process ..q->rear = %d\n ", q->rear->arrival_time);
+    int i, j;
+    // printf("from check function\n");
+    // display_pqueue();
+    printf("ana aho %d\n", q->rear->arrival_time);
+    for (i = 0; i <= q->rear->arrival_time; i++)
+
+    {
+        // printf("pat=%d\n", p->arrival_time);
+        // printf("priqat=%d\n", pri_que[i]->arrival_time);
+        if (p->remaining_time < q->pri_que[i]->remaining_time)
+
+        {
+            // printf("entered if condition %d \n", i);
+            for (j = q->rear->arrival_time + 1; j > i; j--)
+
+            {
+                // printf("entered \n");
+                q->pri_que[j] = q->pri_que[j - 1];
+            }
+
+            q->pri_que[i] = p;
+
+            return;
+        }
+    }
+
+    q->pri_que[i] = p;
 }
 
 /* Function to delete an element from queue */
 
-void delete_by_priority(struct Process *p)
+void delete_by_priority(struct Queue *q, struct Process *p)
 
 {
 
     int i;
 
-    if ((front->arrival_time == -1) && (rear->arrival_time == -1))
+    if ((q->front->arrival_time == -1) && (q->rear->arrival_time == -1))
 
     {
 
@@ -338,28 +519,28 @@ void delete_by_priority(struct Process *p)
         return;
     }
 
-    for (i = 0; i <= rear->arrival_time; i++)
+    for (i = 0; i <= q->rear->arrival_time; i++)
 
     {
 
-        if (p == pri_que[i])
+        if (p == q->pri_que[i])
 
         {
 
-            for (; i < rear->arrival_time; i++)
+            for (; i < q->rear->arrival_time; i++)
 
             {
 
-                pri_que[i] = pri_que[i + 1];
+                q->pri_que[i] = q->pri_que[i + 1];
             }
 
-            pri_que[i] = NULL;
+            q->pri_que[i] = NULL;
 
-            rear->arrival_time--;
+            q->rear->arrival_time--;
 
-            if (rear->arrival_time == -1)
+            if (q->rear->arrival_time == -1)
 
-                front->arrival_time = -1;
+                q->front->arrival_time = -1;
 
             return;
         }
@@ -371,26 +552,25 @@ void delete_by_priority(struct Process *p)
 
 /* Function to display queue elements */
 
-void display_pqueue()
+void display_queue(struct Queue *q)
 
 {
 
-    if ((front->arrival_time == -1) && (rear->arrival_time == -1))
+    if ((q->front->arrival_time == -1) && (q->rear->arrival_time == -1))
 
     {
 
-        printf("\nQueue is empty");
+        printf("\nQueue is empty\n");
 
         return;
     }
 
-    for (int i=front->arrival_time; i <= rear->arrival_time; i++)
+    for (int i = q->front->arrival_time; i <= q->rear->arrival_time; i++)
 
     {
-        printf("a7a %d\n",front->arrival_time);
         printf("%d \n", i);
-        printProcess(pri_que[i]);
+        printProcess(q->pri_que[i]);
     }
 
-    front->arrival_time = 0;
+    q->front->arrival_time = 0;
 }
