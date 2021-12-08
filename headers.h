@@ -124,4 +124,14 @@ void printFloat(void *f)
    printf(" %f", *(float *)f);
 }
 
+/**** process structure *****/
+struct Process
+{
+    // Any data type can be stored in this node
+    int  id;
+    int  run_time;
+    int  arrival_time;
+    int  priority;
+};
+
 
