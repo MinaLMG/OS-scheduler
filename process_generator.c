@@ -7,6 +7,38 @@ int main(int argc, char * argv[])
     signal(SIGINT, clearResources);
     // TODO Initialization
     // 1. Read the input files.
+    FILE *fptr;
+    fptr = fopen("process.txt","r");
+    
+    int num;
+
+    if (fptr == NULL){
+        printf("Error! opening file");
+
+        // Program exits if the file pointer returns NULL.
+        exit(1);
+    }
+    while(!feof(fptr)){
+        struct Process p1;
+        struct Process *p=&p1;
+        fscanf(fptr,"%d", &p->id);
+
+        printf("Value of id =%d \n", (p->id));
+
+        fscanf(fptr,"%d",&p->run_time);
+
+        printf("Value of run time =%d \n", (p->run_time));
+
+        fscanf(fptr,"%d", &p->arrival_time);
+
+        printf("Value of arrival time =%d \n", (p->arrival_time));
+
+        fscanf(fptr,"%d", &p->priority);
+
+        printf("Value of priority =%d \n", (p->priority));
+    }
+
+    fclose(fptr);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock
