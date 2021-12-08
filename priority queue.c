@@ -26,7 +26,7 @@ struct Process *pri_que[MAX];
 
 struct Process *front, *rear;
 
-void main()
+/*void main()
 
 {
 
@@ -89,7 +89,7 @@ void main()
             printf("\nChoice is incorrect, Enter a correct choice");
         }
     }
-}
+}*/
 
 /* Function to create an empty priority queue */
 
