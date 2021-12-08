@@ -51,7 +51,12 @@ int main(int argc, char * argv[])
 
     fclose(fptr);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
+    int algorithm;
+    printf("enter the hoped algorithm number:");
+    scanf("%d", &algorithm);
+    printf("Value of algorithm =%d \n", algorithm);
     // 3. Initiate and create the scheduler and clock processes.
+    
     // 4. Use this function after creating the clock process to initialize clock
     initClk();
     // To get time use this
