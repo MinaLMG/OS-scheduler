@@ -2,53 +2,67 @@
 
 void clearResources(int);
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
     // TODO Initialization
     // 1. Read the input files.
     FILE *fptr;
-    fptr = fopen("process.txt","r");
-    
+    fptr = fopen("process.txt", "r");
+
     int num;
 
-    if (fptr == NULL){
+    if (fptr == NULL)
+    {
         printf("Error! opening file");
 
         // Program exits if the file pointer returns NULL.
         exit(1);
     }
-    while(!feof(fptr)){
-        struct Process p1;
-        struct Process *p=&p1;
-        char firstString [256];
-        fscanf(fptr,"%s", firstString);
-        if(firstString[0]=='#'){
+    create();
+    while (!feof(fptr))
+    {
+        // person * myperson = (person *) malloc(sizeof(person)); 
+        // struct Process p1;
+        struct Process *p = (struct Process *)malloc(sizeof(struct Process));
+        char firstString[256];
+        fscanf(fptr, "%s", firstString);
+        if (firstString[0] == '#')
+        {
             char ignore[1024];
             fgets(ignore, sizeof(ignore), fptr);
             continue;
         }
-        else{
-           /*printf("doesn't start with #");*/
-           p->id=strtol(firstString,NULL,10);
+        else
+        {
+            /*printf("doesn't start with #");*/
+            p->id = strtol(firstString, NULL, 10);
         }
-       
 
-        printf("Value of id =%d \n", (p->id));
+        // printf("Value of id =%d \n", (p->id));
 
-        fscanf(fptr,"%d",&p->run_time);
+        fscanf(fptr, "%d", &p->run_time);
 
-        printf("Value of run time =%d \n", (p->run_time));
+        // printf("Value of run time =%d \n", (p->run_time));
 
-        fscanf(fptr,"%d", &p->arrival_time);
+        fscanf(fptr, "%d", &p->arrival_time);
 
-        printf("Value of arrival time =%d \n", (p->arrival_time));
+        // printf("Value of arrival time =%d \n", (p->arrival_time));
 
-        fscanf(fptr,"%d", &p->priority);
+        fscanf(fptr, "%d", &p->priority);
 
-        printf("Value of priority =%d \n", (p->priority));
+        // printf("Value of priority =%d \n", (p->priority));
+
+        p->remaining_time = p->run_time;
+        p->finish_time = -1;
+        // printProcess(p);
+        insert_by_priority(p);
+        // printProcess( pri_que[0]);
+        // printf("after a loop in file:\n");
+        // display_pqueue();
     }
-
+    // printProcess( pri_que[1]);
+    display_pqueue();
     fclose(fptr);
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
     int algorithm;
@@ -56,17 +70,39 @@ int main(int argc, char * argv[])
     scanf("%d", &algorithm);
     printf("Value of algorithm =%d \n", algorithm);
     // 3. Initiate and create the scheduler and clock processes.
-    
-    // 4. Use this function after creating the clock process to initialize clock
-    initClk();
-    // To get time use this
-    int x = getClk();
-    printf("current time is %d\n", x);
-    // TODO Generation Main Loop
-    // 5. Create a data structure for processes and provide it with its parameters.
-    // 6. Send the information to the scheduler at the appropriate time.
-    // 7. Clear clock resources
-    destroyClk(true);
+
+    /*** initialixing clock***/
+    int clockId = fork();
+    // printf("clokid= %d \n ",clockId);
+    if (clockId == -1)
+        printf("error in fork ");
+    else if (clockId == 0)
+    {
+        char *argv[] = {"./clk.out", NULL};
+        execv(argv[0], argv);
+    }
+    else
+    {
+        // 4. Use this function after creating the clock process to initialize clock
+        initClk();
+
+        // while(1){
+        // sleep(2);
+
+        int x = getClk();
+        printf("current time is %d\n", x);
+
+        // }
+        // TODO Generation Main Loop
+        // 5. Create a data structure for processes and provide it with its parameters.
+
+        /*** implemented in header ****/
+
+        // 6. Send the information to the scheduler at the appropriate time.
+
+        // 7. Clear clock resources
+        destroyClk(true);
+    }
 }
 
 void clearResources(int signum)
