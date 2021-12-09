@@ -395,6 +395,23 @@ void check(struct Queue *q, struct Process *p, char type)
                 return;
             }
             break;
+        case 'w' /* remaining time */:
+            if (i==0)
+
+            {
+                // printf("entered if condition %d \n", i);
+                for (j = q->rear->arrival_time + 1; j > i; j--)
+
+                {
+                    // printf("entered \n");
+                    q->pri_que[j] = q->pri_que[j - 1];
+                }
+
+                q->pri_que[i] = p;
+
+                return;
+            }
+            break;
 
         default:
             break;
