@@ -57,13 +57,13 @@ int main(int argc, char *argv[])
         p->finish_time = -1;
         // printProcess(p);
 
-        insert_by_priority(q, p,'w');
+        insert_by_priority(q, p, 'a');
         // printProcess( pri_que[0]);
         // printf("after a loop in file:\n");
         // display_pqueue();
     }
     // printProcess( pri_que[1]);
-    display_queue(q);
+    // display_queue(q);
     /*for (int i = 0; i < 6; i++)
     {
         struct Process *temp = dequeue(q);
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     while (algorithm > 3 || algorithm < 1)
     {
         printf("you entered invalid number \n1 for non-preemptive HPF\n2 for SRTN\n3 for round-robin :\n ");
-        scanf("%d", &algorithm);
+        scanf("%d\n", &algorithm);
     }
     int rr = -1;
     if (algorithm == 3)
@@ -110,13 +110,14 @@ int main(int argc, char *argv[])
         // 4. Use this function after creating the clock process to initialize clock
         initClk();
 
-        while(1){
-        sleep(2);
+        // while (1)
+        // {
+        //     // sleep(2);
 
-        int x = getClk();
-        printf("current time is %d\n", getClk());
-
-        }
+        //     int x = getClk();
+        //     printf("current time is %d\n", getClk());
+        //     break;
+        // }
         // TODO Generation Main Loop
         // 5. Create a data structure for processes and provide it with its parameters.
 
@@ -130,27 +131,87 @@ int main(int argc, char *argv[])
         }
         else if (schedulerId == 0)
         {
-            char *argv[] = {"./schedular.out", NULL};
+            char *argv[] = {"./scheduler.out", NULL};
             execv(argv[0], argv);
         }
         else
         {
-            printf("current time is %d\n", getClk());
-            struct Process* to_send =dequeue(q);
-            while(1 && to_send){
-                if(getClk()==to_send->arrival_time)
-                
-                    to_send=dequeue(q);
+            // printf("current time is %d\n", getClk());
+            // display_queue(q);
+            struct Process *to_send = dequeue(q);
+            printProcess(to_send);
+            while (to_send != NULL)
+            {
+                sleep(1);
+                printf("time is %d from while\n", getClk());
+                printf("arrival_time %d from while\n", to_send->arrival_time);
+                if (getClk() == to_send->arrival_time)
+                {
+                    key_t fromGenToSch;
+                    key_t fromSchToGen;
+                    fromGenToSch = msgget(500, IPC_CREAT | 0644);
+                    if (fromGenToSch == -1)
+                    {
+                        perror("Error in create");
+                        exit(-1);
+                    }
+                    printf("fromGenToSch = %d\n", fromGenToSch);
+                    fromSchToGen = msgget(550, IPC_CREAT | 0644);
+                    if (fromSchToGen == -1)
+                    {
+                        perror("Error in create");
+                        exit(-1);
+                    }
+                    printf("fromSchToGen = %d\n", fromSchToGen);
+
+                    int send_val;
+                    char str[256];
+                    printf("enter your message:");
+                    scanf("%s", str);
+                    struct msgbuff message;
+                    message.mtype = getpid() % 10000; /* arbitrary value */
+                    strcpy(message.mtext, str);
+                    send_val = msgsnd(fromGenToSch, &message, sizeof(message.mtext), !IPC_NOWAIT);
+
+                    if (send_val == -1)
+                    {
+                        perror("Errror in send");
+                        // continue;
+                    }
+                    printf("\nMessage sent: %s\n", message.mtext);
+                    // while(1){
+                    // sleep(2);
+                    int rec_val;
+                    struct msgbuff message2;
+                    rec_val = msgrcv(fromSchToGen, &message2, sizeof(message2.mtext), getpid() % 10000, !IPC_NOWAIT);
+
+                    if (rec_val == -1)
+                        perror("Error in receiving");
+                    else
+                    {
+                        // msgctl(fromSchToGen, IPC_RMID, (struct msqid_ds *) 0);
+                        printf("\nMessage received: %s\n", message2.mtext);
+                        // char str[] = "";
+                        // strcpy(str,message2.mtext);
+                        // break;
+                    }
                 }
+                else
+                    continue;
+                to_send = dequeue(q);
             }
-            // 7. Clear clock resources
+            printf("after while");
+        }
+        /*--------------------------------------------------------------*/
+        /*----------------------------------------------------------------*/
+        // 7. Clear clock resources
         //     while(1)
         //     {
         //         printf("current time: %d",getClk());
         //         sleep(1);
         //    }
-            destroyClk(true);
-        }
+
+        destroyClk(true);
     }
 }
 
