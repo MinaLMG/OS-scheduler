@@ -139,12 +139,11 @@ int main(int argc, char *argv[])
             // printf("current time is %d\n", getClk());
             // display_queue(q);
             struct Process *to_send = dequeue(q);
-            printProcess(to_send);
+            // printProcess(to_send);
             while (to_send != NULL)
             {
-                sleep(1);
-                printf("time is %d from while\n", getClk());
-                printf("arrival_time %d from while\n", to_send->arrival_time);
+                // printf("time is %d from while\n", getClk());
+                // printf("arrival_time %d from while\n", to_send->arrival_time);
                 if (getClk() == to_send->arrival_time)
                 {
                     key_t fromGenToSch;
@@ -155,32 +154,32 @@ int main(int argc, char *argv[])
                         perror("Error in create");
                         exit(-1);
                     }
-                    printf("fromGenToSch = %d\n", fromGenToSch);
+                    // printf("fromGenToSch = %d\n", fromGenToSch);
                     fromSchToGen = msgget(550, IPC_CREAT | 0644);
                     if (fromSchToGen == -1)
                     {
                         perror("Error in create");
                         exit(-1);
                     }
-                    printf("fromSchToGen = %d\n", fromSchToGen);
+                    // printf("fromSchToGen = %d\n", fromSchToGen);
 
                     int send_val;
-                    char str[256];
-                    printf("enter your message:");
-                    scanf("%s", str);
                     struct msgbuff message;
                     message.mtype = getpid() % 10000; /* arbitrary value */
-                    strcpy(message.mtext, str);
-                    send_val = msgsnd(fromGenToSch, &message, sizeof(message.mtext), !IPC_NOWAIT);
+                    message.p = *to_send;
+                    send_val = msgsnd(fromGenToSch, &message, sizeof(message.p), !IPC_NOWAIT);
 
                     if (send_val == -1)
                     {
                         perror("Errror in send");
                         // continue;
                     }
-                    printf("\nMessage sent: %s\n", message.mtext);
+                    // printf("\nMessage sent: %s\n", message.mtext);
+                    printf("\nMessage sent: \n") ;
+                    printProcess(&message.p);
                     // while(1){
                     // sleep(2);
+                    /*
                     int rec_val;
                     struct msgbuff message2;
                     rec_val = msgrcv(fromSchToGen, &message2, sizeof(message2.mtext), getpid() % 10000, !IPC_NOWAIT);
@@ -195,12 +194,13 @@ int main(int argc, char *argv[])
                         // strcpy(str,message2.mtext);
                         // break;
                     }
+                    */
                 }
                 else
                     continue;
                 to_send = dequeue(q);
             }
-            printf("after while");
+            printf("after while \n");
         }
         /*--------------------------------------------------------------*/
         /*----------------------------------------------------------------*/
