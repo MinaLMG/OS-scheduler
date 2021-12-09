@@ -9,7 +9,7 @@ int main (){
     }
     initClk();
     while(1){
-        printf("%d\n",getClk());
+        printf(" %d \n ",getClk());
         sleep(2);
 
     }

@@ -11,6 +11,12 @@
 #include <unistd.h>
 #include <signal.h>
 
+struct msgbuff
+{
+    long mtype;
+    char mtext[256];
+};
+
 typedef short bool;
 #define true 1
 #define false 0
@@ -336,7 +342,7 @@ void check(struct Queue *q, struct Process *p, char type)
     int i, j;
     // printf("from check function\n");
     // display_pqueue();
-    printf("ana aho %d\n", q->rear->arrival_time);
+    // printf("ana aho %d\n", q->rear->arrival_time);
     for (i = 0; i <= q->rear->arrival_time; i++)
 
     {
