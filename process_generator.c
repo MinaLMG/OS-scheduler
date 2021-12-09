@@ -138,6 +138,43 @@ int main(int argc, char *argv[])
         {
             // printf("current time is %d\n", getClk());
             // display_queue(q);
+            key_t fromGenToSchAlg;
+            fromGenToSchAlg = msgget(550, IPC_CREAT | 0644);
+            if (fromGenToSchAlg == -1)
+            {
+                perror("Error in create");
+                exit(-1);
+            }
+            // printf("fromGenToSchAlg = %d\n", fromGenToSchAlg);
+            /***********/
+            int send_val;
+            struct msgAlgorithmBuff message2;
+            message2.mtype = getpid() % 10000; /* arbitrary value */
+            message2.val = algorithm;
+            send_val = msgsnd(fromGenToSchAlg, &message2, sizeof(message2.val), !IPC_NOWAIT);
+
+            if (send_val == -1)
+            {
+                perror("Errror in send");
+                // continue;
+            }
+            // printf("\nMessage sent: %s\n", message.mtext);
+            printf("\nMessage sent: %d\n", message2.val);
+            if (algorithm == 3)
+            {
+                message2.val = rr;
+                send_val = msgsnd(fromGenToSchAlg, &message2, sizeof(message2.val), !IPC_NOWAIT);
+
+                if (send_val == -1)
+                {
+                    perror("Errror in send");
+                    // continue;
+                }
+                // printf("\nMessage sent: %s\n", message.mtext);
+                printf("\nMessage sent: %d\n", message2.val);
+            }
+            /*********/
+
             struct Process *to_send = dequeue(q);
             // printProcess(to_send);
             while (to_send != NULL)
@@ -146,28 +183,21 @@ int main(int argc, char *argv[])
                 // printf("arrival_time %d from while\n", to_send->arrival_time);
                 if (getClk() == to_send->arrival_time)
                 {
-                    key_t fromGenToSch;
-                    key_t fromSchToGen;
-                    fromGenToSch = msgget(500, IPC_CREAT | 0644);
-                    if (fromGenToSch == -1)
+
+                    key_t fromGenToSchPro;
+                    fromGenToSchPro = msgget(500, IPC_CREAT | 0644);
+                    if (fromGenToSchPro == -1)
                     {
                         perror("Error in create");
                         exit(-1);
                     }
-                    // printf("fromGenToSch = %d\n", fromGenToSch);
-                    fromSchToGen = msgget(550, IPC_CREAT | 0644);
-                    if (fromSchToGen == -1)
-                    {
-                        perror("Error in create");
-                        exit(-1);
-                    }
-                    // printf("fromSchToGen = %d\n", fromSchToGen);
+                    // printf("fromGenToSchPro = %d\n", fromGenToSchPro);
 
                     int send_val;
-                    struct msgbuff message;
+                    struct msgProcessBuff message;
                     message.mtype = getpid() % 10000; /* arbitrary value */
                     message.p = *to_send;
-                    send_val = msgsnd(fromGenToSch, &message, sizeof(message.p), !IPC_NOWAIT);
+                    send_val = msgsnd(fromGenToSchPro, &message, sizeof(message.p), !IPC_NOWAIT);
 
                     if (send_val == -1)
                     {
@@ -175,26 +205,8 @@ int main(int argc, char *argv[])
                         // continue;
                     }
                     // printf("\nMessage sent: %s\n", message.mtext);
-                    printf("\nMessage sent: \n") ;
+                    printf("\nMessage sent: \n");
                     printProcess(&message.p);
-                    // while(1){
-                    // sleep(2);
-                    /*
-                    int rec_val;
-                    struct msgbuff message2;
-                    rec_val = msgrcv(fromSchToGen, &message2, sizeof(message2.mtext), getpid() % 10000, !IPC_NOWAIT);
-
-                    if (rec_val == -1)
-                        perror("Error in receiving");
-                    else
-                    {
-                        // msgctl(fromSchToGen, IPC_RMID, (struct msqid_ds *) 0);
-                        printf("\nMessage received: %s\n", message2.mtext);
-                        // char str[] = "";
-                        // strcpy(str,message2.mtext);
-                        // break;
-                    }
-                    */
                 }
                 else
                     continue;
