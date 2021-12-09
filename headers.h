@@ -495,8 +495,13 @@ void display_queue(struct Queue *q)
     q->front->arrival_time = 0;
 }
 
-struct msgbuff
+struct msgProcessBuff
 {
     long mtype;
     struct Process p;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
+};
+struct msgAlgorithmBuff
+{
+    long mtype;
+    int val;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
 };
