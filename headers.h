@@ -11,11 +11,6 @@
 #include <unistd.h>
 #include <signal.h>
 
-struct msgbuff
-{
-    long mtype;
-    char mtext[256];
-};
 
 typedef short bool;
 #define true 1
@@ -499,3 +494,9 @@ void display_queue(struct Queue *q)
 
     q->front->arrival_time = 0;
 }
+
+struct msgbuff
+{
+    long mtype;
+    struct Process p;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
+};
