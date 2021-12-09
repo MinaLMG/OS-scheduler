@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         p->finish_time = -1;
         // printProcess(p);
 
-        insert_by_priority(q, p,'a');
+        insert_by_priority(q, p,'w');
         // printProcess( pri_que[0]);
         // printf("after a loop in file:\n");
         // display_pqueue();
@@ -110,13 +110,13 @@ int main(int argc, char *argv[])
         // 4. Use this function after creating the clock process to initialize clock
         initClk();
 
-        // while(1){
-        // sleep(2);
+        while(1){
+        sleep(2);
 
         int x = getClk();
-        printf("current time is %d\n", x);
+        printf("current time is %d\n", getClk());
 
-        // }
+        }
         // TODO Generation Main Loop
         // 5. Create a data structure for processes and provide it with its parameters.
 
@@ -135,7 +135,20 @@ int main(int argc, char *argv[])
         }
         else
         {
+            printf("current time is %d\n", getClk());
+            struct Process* to_send =dequeue(q);
+            while(1 && to_send){
+                if(getClk()==to_send->arrival_time)
+                
+                    to_send=dequeue(q);
+                }
+            }
             // 7. Clear clock resources
+        //     while(1)
+        //     {
+        //         printf("current time: %d",getClk());
+        //         sleep(1);
+        //    }
             destroyClk(true);
         }
     }
