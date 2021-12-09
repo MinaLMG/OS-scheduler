@@ -1,59 +1,74 @@
 #include "headers.h"
 
-key_t fromGenToSch;
-key_t fromSchToGen;
-int main(int argc, char * argv[])
+key_t fromGenToSchAlg;
+key_t fromGenToSchPro;
+int main(int argc, char *argv[])
 {
     initClk();
-    
-    //TODO implement the scheduler :)
-    //upon termination release the clock resources
-    pid_t pid;
-    fromGenToSch=msgget(500, IPC_CREAT | 0644);
-    if(fromGenToSch == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
-    // printf("fromGenToSch = %d\n", fromGenToSch);
 
-    fromSchToGen=msgget(550, IPC_CREAT | 0644);
-    if(fromSchToGen == -1)
+    // TODO implement the scheduler :)
+    // upon termination release the clock resources
+    pid_t pid;
+    fromGenToSchPro = msgget(500, IPC_CREAT | 0644);
+    if (fromGenToSchPro == -1)
     {
         perror("Error in create");
         exit(-1);
     }
-    // printf("fromSchToGen = %d\n", fromSchToGen);
+    // printf("fromGenToSchPro = %d\n", fromGenToSchPro);
+
+    fromGenToSchAlg = msgget(550, IPC_CREAT | 0644);
+    if (fromGenToSchAlg == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    // printf("fromGenToSchAlg = %d\n", fromGenToSchAlg);
 
     int rec_val;
-
-    struct msgbuff message;
-
-    while(1){
-        /* receive all types of messages */
-        rec_val = msgrcv(fromGenToSch, &message, sizeof(message.p), 0, !IPC_NOWAIT);
+    int algorithm;
+    int rr = -1;
+    struct msgProcessBuff message;
+    struct msgAlgorithmBuff message2;
+    /* receive the value of algorithm */
+    rec_val = msgrcv(fromGenToSchAlg, &message2, sizeof(message2.val), 0, !IPC_NOWAIT);
+    // sleep(2);
+    if (rec_val == -1)
+        perror("Error in receiving");
+    else
+    {
+        // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
+        printf("\nAlgorithm received: %d\n", message2.val);
+        algorithm = message2.val;
+    }
+    if (algorithm == 3)
+    {
+        rec_val = msgrcv(fromGenToSchAlg, &message2, sizeof(message2.val), 0, !IPC_NOWAIT);
         // sleep(2);
-        if(rec_val == -1)
+        if (rec_val == -1)
             perror("Error in receiving");
         else
-        {   
-            // msgctl(fromGenToSch, IPC_RMID, (struct msqid_ds *) 0);
-            printf("\nMessage received: \n");
-            
-            printProcess(&message.p);
-            // printf("\ni'm the scheduler: \n");
-            /*char str[256]="";
-            strcpy(str,message.mtext);
-            int send_val;
-            struct msgbuff message2;
-            message2.mtype = message.mtype;     	 arbitrary value 
-            strcpy(message2.mtext, str);
-            printf("\nMessage to reply with : %s\n", message2.mtext);
-            send_val = msgsnd(fromSchToGen, &message2, sizeof(message2.mtext), !IPC_NOWAIT);*/
+        {
+            // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
+            printf("\n rr received: %d\n", message2.val);
+            rr = message2.val;
         }
-
     }
+    while (1)
+    {
+        /* receive all types of messages */
+        rec_val = msgrcv(fromGenToSchPro, &message, sizeof(message.p), 0, !IPC_NOWAIT);
+        // sleep(2);
+        if (rec_val == -1)
+            perror("Error in receiving");
+        else
+        {
+            // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
+            printf("\nMessage received: \n");
 
+            printProcess(&message.p);
+        }
+    }
 
     destroyClk(true);
 }
