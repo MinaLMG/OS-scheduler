@@ -1,5 +1,46 @@
 #include "headers.h"
-
+//*key_t queue_key,int get_value,int pid,int value_to_send,struct msgIntBuff* message)*/
+void receiveIntValue(key_t queue_key, int get_value, int value_to_receive, struct msgIntBuff *message)
+{
+    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    // printf("queue key int value receiver :%d \n", queue_key);
+    if (queue_key == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    int rec_val;
+    rec_val = msgrcv(queue_key, message, sizeof(message->val), 0, !IPC_NOWAIT);
+    // printf("has received %d with %d \n", (int)message->val, rec_val);
+    if (rec_val == -1)
+        perror("Error in receiving");
+    else
+    {
+        value_to_receive = message->val;
+        // printf("from function : %d \n", (int)message->val);
+    }
+}
+void receiveProcessValue(key_t queue_key, int get_value, struct Process process_to_receive, struct msgProcessBuff *message)
+{
+    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    // printf("queue key value receiver :%d \n", queue_key);
+    if (queue_key == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    int rec_val;
+    rec_val = msgrcv(queue_key, message, sizeof(message->p), 0, !IPC_NOWAIT);
+    // printf("has receivd\n");
+    if (rec_val == -1)
+        perror("Error in receiving");
+    else
+    {
+        // process_to_receive = message->p;
+        // printf("from function: \n");
+        // printProcess(&process_to_receive);
+    }
+}
 key_t fromGenToSchAlg;
 key_t fromGenToSchPro;
 int main(int argc, char *argv[])
@@ -8,66 +49,27 @@ int main(int argc, char *argv[])
 
     // TODO implement the scheduler :)
     // upon termination release the clock resources
-    pid_t pid;
-    fromGenToSchPro = msgget(500, IPC_CREAT | 0644);
-    if (fromGenToSchPro == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
-    // printf("fromGenToSchPro = %d\n", fromGenToSchPro);
-
-    fromGenToSchAlg = msgget(550, IPC_CREAT | 0644);
-    if (fromGenToSchAlg == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
-    // printf("fromGenToSchAlg = %d\n", fromGenToSchAlg);
-
-    int rec_val;
     int algorithm;
     int rr = -1;
     struct msgProcessBuff message;
-    struct msgAlgorithmBuff message2;
+    struct msgIntBuff message2;
     /* receive the value of algorithm */
-    rec_val = msgrcv(fromGenToSchAlg, &message2, sizeof(message2.val), 0, !IPC_NOWAIT);
-    // sleep(2);
-    if (rec_val == -1)
-        perror("Error in receiving");
-    else
-    {
-        // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
-        printf("\nAlgorithm received: %d\n", message2.val);
-        algorithm = message2.val;
-    }
+    receiveIntValue(fromGenToSchAlg, 550, algorithm, &message2);
+    printf("\nAlgorithm received: %d\n", message2.val);
     if (algorithm == 3)
     {
-        rec_val = msgrcv(fromGenToSchAlg, &message2, sizeof(message2.val), 0, !IPC_NOWAIT);
-        // sleep(2);
-        if (rec_val == -1)
-            perror("Error in receiving");
-        else
-        {
-            // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
-            printf("\n rr received: %d\n", message2.val);
-            rr = message2.val;
-        }
+        receiveIntValue(fromGenToSchAlg, 550, rr, &message2);
+        printf("\n rr received: %d\n", message2.val);
     }
+    struct Process to_receive;
     while (1)
     {
-        /* receive all types of messages */
-        rec_val = msgrcv(fromGenToSchPro, &message, sizeof(message.p), 0, !IPC_NOWAIT);
-        // sleep(2);
-        if (rec_val == -1)
-            perror("Error in receiving");
-        else
-        {
-            // msgctl(fromGenToSchPro, IPC_RMID, (struct msqid_ds *) 0);
-            printf("\nMessage received: \n");
-
-            printProcess(&message.p);
-        }
+        // printf("i'm here \n");
+        receiveProcessValue(fromGenToSchPro, 500, to_receive, &message);
+        printf("Process received : \n");
+        to_receive=message.p;
+        // printProcess(&to_receive);
+        printProcess(&message.p);
     }
 
     destroyClk(true);
