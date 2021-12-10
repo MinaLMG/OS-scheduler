@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <signal.h>
 
-
 typedef short bool;
 #define true 1
 #define false 0
@@ -174,7 +173,7 @@ struct Process *dequeue(struct Queue *);
 
 struct Queue *create();
 
-void check(struct Queue *, struct Process *,char);
+void check(struct Queue *, struct Process *, char);
 
 void display_queue(struct Queue *);
 
@@ -327,8 +326,6 @@ void insert_by_priority(struct Queue *q, struct Process *p, char type)
     q->rear->arrival_time++;
 }
 
-
-
 void check(struct Queue *q, struct Process *p, char type)
 
 {
@@ -397,7 +394,7 @@ void check(struct Queue *q, struct Process *p, char type)
             }
             break;
         case 'w' /* remaining time */:
-            if (i==0)
+            if (i == 0)
 
             {
                 // printf("entered if condition %d \n", i);
@@ -498,17 +495,17 @@ void display_queue(struct Queue *q)
 struct msgProcessBuff
 {
     long mtype;
-    struct Process p;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
+    struct Process p; /*** when it was sent as a pointer the difference in memories between processes was a problem***/
 };
 struct msgIntBuff
 {
     long mtype;
     int val;
 };
-void sendIntMesssage(key_t queue_key,int get_value,int pid,int value_to_send,struct msgIntBuff* message)
+void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key int value sender :%d \n",queue_key);
+    // printf("queue key int value sender :%d \n", queue_key);
     if (queue_key == -1)
     {
         perror("Error in create");
@@ -524,10 +521,10 @@ void sendIntMesssage(key_t queue_key,int get_value,int pid,int value_to_send,str
         perror("Errror in send");
     }
 }
-void sendProcessMesssage(key_t queue_key,int get_value,int pid,struct Process *process_to_send,struct msgProcessBuff * message)
+void sendProcessMesssage(key_t queue_key, int get_value, int pid, struct Process process_to_send, struct msgProcessBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key value sender :%d \n",queue_key);
+    // printf("queue key value sender :%d \n", queue_key);
     if (queue_key == -1)
     {
         perror("Error in create");
@@ -535,8 +532,8 @@ void sendProcessMesssage(key_t queue_key,int get_value,int pid,struct Process *p
     }
     int send_val;
     message->mtype = pid % 10000; /* arbitrary value */
-    message->p = *process_to_send;
-    send_val = msgsnd(queue_key, message, sizeof(message->p), !IPC_NOWAIT);
+    message->p = process_to_send;
+    send_val = msgsnd(queue_key, message, sizeof(message->p), IPC_NOWAIT);
 
     if (send_val == -1)
     {
@@ -544,7 +541,7 @@ void sendProcessMesssage(key_t queue_key,int get_value,int pid,struct Process *p
     }
 }
 
-void receiveIntValue(key_t queue_key, int get_value, int value_to_receive, struct msgIntBuff *message)
+void receiveIntValue(key_t queue_key, int get_value, int *value_to_receive, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
     // printf("queue key int value receiver :%d \n", queue_key);
@@ -560,12 +557,13 @@ void receiveIntValue(key_t queue_key, int get_value, int value_to_receive, struc
         perror("Error in receiving");
     else
     {
-        value_to_receive =  message->val;
+        *value_to_receive = message->val;
         // printf("from function : %d \n", (int)message->val);
     }
 }
-void receiveProcessValue(key_t queue_key, int get_value, struct Process process_to_receive, struct msgProcessBuff *message)
+void receiveProcessValue(key_t queue_key, int get_value, struct Process *process_to_receive, struct msgProcessBuff *message)
 {
+    // printf("enterd function at receiver \n");
     queue_key = msgget(get_value, IPC_CREAT | 0644);
     // printf("queue key value receiver :%d \n", queue_key);
     if (queue_key == -1)
@@ -575,11 +573,12 @@ void receiveProcessValue(key_t queue_key, int get_value, struct Process process_
     }
     int rec_val;
     rec_val = msgrcv(queue_key, message, sizeof(message->p), 0, !IPC_NOWAIT);
-    // printf("has receivd\n");
     if (rec_val == -1)
         perror("Error in receiving");
     else
     {
-
+        *process_to_receive = message->p;
+        // printf("has receivd \n");
+        // printProcess(process_to_receive);
     }
 }
