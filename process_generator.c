@@ -150,24 +150,35 @@ int main(int argc, char *argv[])
                 printf("\nMessage sent: %d\n", message2.val);
             }
             /*********/
-
+            int last_clock=-1;
             struct Process *to_send = dequeue(q);
             // printProcess(to_send);
             while (to_send != NULL)
             {
                 // printf("time is %d from while\n", getClk());
                 // printf("arrival_time %d from while\n", to_send->arrival_time);
-                if (getClk() == to_send->arrival_time)
+                if ((getClk() == to_send->arrival_time))
                 {
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
                     printf("\nMessage sent: \n");
                     printProcess(&message.p);
+                    to_send = dequeue(q);
+                    last_clock=getClk();
+                }
+                else if(getClk!=last_clock)
+                {
+                    key_t fromGenToSchPro;
+                    struct msgProcessBuff message;
+                    sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
+                    printf("\nMessage sent: \n");
+                    printProcess(&message.p);
+                    to_send = dequeue(q);
+                    last_clock=getClk();
                 }
                 else
                     continue;
-                to_send = dequeue(q);
             }
             // printf("after while \n");
         }
