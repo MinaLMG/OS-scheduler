@@ -140,17 +140,17 @@ int main(int argc, char *argv[])
             // display_queue(q);
             key_t fromGenToSchAlg;
             struct msgIntBuff message2;
-            sendIntMesssage(fromGenToSchAlg,550,getpid(),algorithm,&message2);
+            sendIntMesssage(fromGenToSchAlg, 550, getpid(), algorithm, &message2);
             // printf("\nMessage sent: %s\n", message.mtext);
             printf("\nMessage sent: %d\n", message2.val);
             if (algorithm == 3)
             {
                 message2.val = rr;
-                sendIntMesssage(fromGenToSchAlg,550,getpid(),rr,&message2);
+                sendIntMesssage(fromGenToSchAlg, 550, getpid(), rr, &message2);
                 printf("\nMessage sent: %d\n", message2.val);
             }
             /*********/
-            int last_clock=-1;
+            int last_clock = -1;
             struct Process *to_send = dequeue(q);
             // printProcess(to_send);
             while (to_send != NULL)
@@ -161,13 +161,13 @@ int main(int argc, char *argv[])
                 {
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
-                    sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
+                    sendProcessMesssage(fromGenToSchPro, 500, getpid(), *to_send, &message);
                     printf("\nMessage sent: \n");
                     printProcess(&message.p);
                     to_send = dequeue(q);
-                    last_clock=getClk();
+                    last_clock = getClk();
                 }
-                else if(getClk!=last_clock)
+                /*else if(getClk!=last_clock)
                 {
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
                     printProcess(&message.p);
                     to_send = dequeue(q);
                     last_clock=getClk();
-                }
+                }*/
                 else
                     continue;
             }
