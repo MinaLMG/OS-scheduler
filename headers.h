@@ -500,8 +500,8 @@ struct msgProcessBuff
     long mtype;
     struct Process p;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
 };
-struct msgAlgorithmBuff
+struct msgIntBuff
 {
     long mtype;
-    int val;/*** when it was sent as a pointer the difference in memories between processes was a problem***/
+    int val;
 };
