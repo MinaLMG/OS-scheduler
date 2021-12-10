@@ -1,7 +1,44 @@
 #include "headers.h"
 
 void clearResources(int);
+void sendIntMesssage(key_t queue_key,int get_value,int pid,int value_to_send,struct msgIntBuff* message)
+{
+    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    // printf("queue key int value sender :%d \n",queue_key);
+    if (queue_key == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    int send_val;
+    message->mtype = pid % 10000; /* arbitrary value */
+    message->val = value_to_send;
+    send_val = msgsnd(queue_key, message, sizeof(message->val), !IPC_NOWAIT);
 
+    if (send_val == -1)
+    {
+        perror("Errror in send");
+    }
+}
+void sendProcessMesssage(key_t queue_key,int get_value,int pid,struct Process *process_to_send,struct msgProcessBuff * message)
+{
+    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    // printf("queue key value sender :%d \n",queue_key);
+    if (queue_key == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    int send_val;
+    message->mtype = pid % 10000; /* arbitrary value */
+    message->p = *process_to_send;
+    send_val = msgsnd(queue_key, message, sizeof(message->p), !IPC_NOWAIT);
+
+    if (send_val == -1)
+    {
+        perror("Errror in send");
+    }
+}
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
@@ -91,7 +128,7 @@ int main(int argc, char *argv[])
             scanf("%d", &rr);
         }
     }
-    printf("Value of algorithm =%d \n", algorithm);
+    // printf("Value of algorithm =%d \n", algorithm);
 
     // 3. Initiate and create the scheduler and clock processes.
 
@@ -139,38 +176,14 @@ int main(int argc, char *argv[])
             // printf("current time is %d\n", getClk());
             // display_queue(q);
             key_t fromGenToSchAlg;
-            fromGenToSchAlg = msgget(550, IPC_CREAT | 0644);
-            if (fromGenToSchAlg == -1)
-            {
-                perror("Error in create");
-                exit(-1);
-            }
-            // printf("fromGenToSchAlg = %d\n", fromGenToSchAlg);
-            /***********/
-            int send_val;
-            struct msgAlgorithmBuff message2;
-            message2.mtype = getpid() % 10000; /* arbitrary value */
-            message2.val = algorithm;
-            send_val = msgsnd(fromGenToSchAlg, &message2, sizeof(message2.val), !IPC_NOWAIT);
-
-            if (send_val == -1)
-            {
-                perror("Errror in send");
-                // continue;
-            }
+            struct msgIntBuff message2;
+            sendIntMesssage(fromGenToSchAlg,550,getpid(),algorithm,&message2);
             // printf("\nMessage sent: %s\n", message.mtext);
             printf("\nMessage sent: %d\n", message2.val);
             if (algorithm == 3)
             {
                 message2.val = rr;
-                send_val = msgsnd(fromGenToSchAlg, &message2, sizeof(message2.val), !IPC_NOWAIT);
-
-                if (send_val == -1)
-                {
-                    perror("Errror in send");
-                    // continue;
-                }
-                // printf("\nMessage sent: %s\n", message.mtext);
+                sendIntMesssage(fromGenToSchAlg,550,getpid(),rr,&message2);
                 printf("\nMessage sent: %d\n", message2.val);
             }
             /*********/
@@ -183,28 +196,9 @@ int main(int argc, char *argv[])
                 // printf("arrival_time %d from while\n", to_send->arrival_time);
                 if (getClk() == to_send->arrival_time)
                 {
-
                     key_t fromGenToSchPro;
-                    fromGenToSchPro = msgget(500, IPC_CREAT | 0644);
-                    if (fromGenToSchPro == -1)
-                    {
-                        perror("Error in create");
-                        exit(-1);
-                    }
-                    // printf("fromGenToSchPro = %d\n", fromGenToSchPro);
-
-                    int send_val;
                     struct msgProcessBuff message;
-                    message.mtype = getpid() % 10000; /* arbitrary value */
-                    message.p = *to_send;
-                    send_val = msgsnd(fromGenToSchPro, &message, sizeof(message.p), !IPC_NOWAIT);
-
-                    if (send_val == -1)
-                    {
-                        perror("Errror in send");
-                        // continue;
-                    }
-                    // printf("\nMessage sent: %s\n", message.mtext);
+                    sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
                     printf("\nMessage sent: \n");
                     printProcess(&message.p);
                 }
@@ -212,10 +206,8 @@ int main(int argc, char *argv[])
                     continue;
                 to_send = dequeue(q);
             }
-            printf("after while \n");
+            // printf("after while \n");
         }
-        /*--------------------------------------------------------------*/
-        /*----------------------------------------------------------------*/
         // 7. Clear clock resources
         //     while(1)
         //     {
