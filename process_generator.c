@@ -1,44 +1,7 @@
 #include "headers.h"
 
 void clearResources(int);
-void sendIntMesssage(key_t queue_key,int get_value,int pid,int value_to_send,struct msgIntBuff* message)
-{
-    queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key int value sender :%d \n",queue_key);
-    if (queue_key == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
-    int send_val;
-    message->mtype = pid % 10000; /* arbitrary value */
-    message->val = value_to_send;
-    send_val = msgsnd(queue_key, message, sizeof(message->val), !IPC_NOWAIT);
 
-    if (send_val == -1)
-    {
-        perror("Errror in send");
-    }
-}
-void sendProcessMesssage(key_t queue_key,int get_value,int pid,struct Process *process_to_send,struct msgProcessBuff * message)
-{
-    queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key value sender :%d \n",queue_key);
-    if (queue_key == -1)
-    {
-        perror("Error in create");
-        exit(-1);
-    }
-    int send_val;
-    message->mtype = pid % 10000; /* arbitrary value */
-    message->p = *process_to_send;
-    send_val = msgsnd(queue_key, message, sizeof(message->p), !IPC_NOWAIT);
-
-    if (send_val == -1)
-    {
-        perror("Errror in send");
-    }
-}
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
