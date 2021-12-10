@@ -1,0 +1,24 @@
+ int x=getClk();
+               if ((x== to_send->arrival_time))
+                {
+                    last_clock=x;/** to avoid entering any another condition***/
+                    key_t fromGenToSchPro;
+                    struct msgProcessBuff message;
+                    sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
+                    // printf("\nMessage sent: \n");
+                    // printProcess(message.p);
+                    to_send = dequeue(q);
+                }
+                else if(x!=last_clock)
+                {
+                    last_clock=x;/** to avoid entering any another condition***/
+                    key_t fromGenToSchPro;
+                    struct msgProcessBuff message;
+                    struct Process * null_process=(struct Process *)malloc(sizeof (struct Process));
+                    null_process->null=100;
+                    sendProcessMesssage(fromGenToSchPro,500,getpid(),null_process,&message);
+                    // printf("\nMessage sent: \n");
+                    // printProcess(message.p);
+                }
+                else
+                    continue;
