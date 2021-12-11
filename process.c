@@ -6,7 +6,6 @@ int remainingtime;
 int main(int agrc, char * argv[])
 {
     initClk();
-    printf("fucken project \n");
     key_t from_scheduler_to_process;
     struct msgIntBuff * message;
     int remainingtime;
