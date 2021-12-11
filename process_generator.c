@@ -41,11 +41,11 @@ int main(int argc, char *argv[])
 
         // printf("Value of id =%d \n", (p->id));
 
-        fscanf(fptr, "%d", &p->run_time);
+        fscanf(fptr, "%d", &p->arrival_time);
 
         // printf("Value of run time =%d \n", (p->run_time));
 
-        fscanf(fptr, "%d", &p->arrival_time);
+        fscanf(fptr, "%d", &p->run_time);
 
         // printf("Value of arrival time =%d \n", (p->arrival_time));
 
@@ -55,6 +55,9 @@ int main(int argc, char *argv[])
 
         p->remaining_time = p->run_time;
         p->finish_time = -1;
+        p->null = 0;
+        p->address = -1;
+        p->last_process=0;
         // printProcess(p);
 
         insert_by_priority(q, p, 'a');
@@ -62,8 +65,9 @@ int main(int argc, char *argv[])
         // printf("after a loop in file:\n");
         // display_pqueue();
     }
+    q->pri_que[q->rear->arrival_time]->last_process=1;
     // printProcess( pri_que[1]);
-    // display_queue(q);
+    display_queue(q);
     /*for (int i = 0; i < 6; i++)
     {
         struct Process *temp = dequeue(q);
@@ -157,26 +161,28 @@ int main(int argc, char *argv[])
             {
                 // printf("time is %d from while\n", getClk());
                 // printf("arrival_time %d from while\n", to_send->arrival_time);
-                if ((getClk() == to_send->arrival_time))
+                int x = getClk();
+                if (x == to_send->arrival_time)
                 {
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     sendProcessMesssage(fromGenToSchPro, 500, getpid(), *to_send, &message);
-                    printf("\nMessage sent: \n");
+                    printf("\nMessage sent at time %d:\n", x);
                     printProcess(&message.p);
                     to_send = dequeue(q);
-                    last_clock = getClk();
+                    last_clock = x;
                 }
-                /*else if(getClk!=last_clock)
+                else if (x != last_clock)
                 {
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
-                    sendProcessMesssage(fromGenToSchPro,500,getpid(),to_send,&message);
-                    printf("\nMessage sent: \n");
+                    struct Process *null_process = (struct Process *)malloc(sizeof(struct Process));
+                    null_process->null = 100;
+                    sendProcessMesssage(fromGenToSchPro, 500, getpid(), *null_process, &message);
+                    printf("\nMessage sent at time %d : \n", x);
                     printProcess(&message.p);
-                    to_send = dequeue(q);
-                    last_clock=getClk();
-                }*/
+                    last_clock = x;
+                }
                 else
                     continue;
             }
@@ -188,8 +194,11 @@ int main(int argc, char *argv[])
         //         printf("current time: %d",getClk());
         //         sleep(1);
         //    }
-
+        while (1)
+        {
+        }
         destroyClk(true);
+        // kill(schedulerId,SIGTERM);
     }
 }
 
