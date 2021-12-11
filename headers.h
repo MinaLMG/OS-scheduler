@@ -129,18 +129,24 @@ struct Process
     int priority;
     int remaining_time;
     int finish_time;
+    int null;
+    int address;
+    int last_process;
 };
 void printProcess(struct Process *p)
 {
-    if (p != NULL)
+    if (p != NULL && p->null != 100)
     {
-        printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n ",
+        printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n null= %d \n address= %d \n last process= %d \n ",
                p->id,
                p->run_time,
                p->arrival_time,
                p->priority,
                p->remaining_time,
-               p->finish_time);
+               p->finish_time,
+               p->null,
+               p->address,
+               p->last_process);
     }
     else
     {
@@ -360,6 +366,7 @@ void check(struct Queue *q, struct Process *p, char type)
             }
             break;
         case 'p' /* priority */:
+            printf("inserting by priority\n");
             if (p->priority < q->pri_que[i]->priority)
 
             {
@@ -394,7 +401,7 @@ void check(struct Queue *q, struct Process *p, char type)
             }
             break;
         case 'w' /* remaining time */:
-            if (i == 0)
+            /*if (i == 0)
 
             {
                 // printf("entered if condition %d \n", i);
@@ -408,7 +415,8 @@ void check(struct Queue *q, struct Process *p, char type)
                 q->pri_que[i] = p;
 
                 return;
-            }
+            }*/
+            q->pri_que[q->rear->arrival_time + 1] = p;
             break;
 
         default:
@@ -505,15 +513,21 @@ struct msgIntBuff
 void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key int value sender :%d \n", queue_key);
+    printf("queue key int value sender :%d \n", queue_key);
     if (queue_key == -1)
     {
+
+        printf("surprise1");
         perror("Error in create");
         exit(-1);
     }
+    printf("surprise1 \n");
     int send_val;
-    message->mtype = pid % 10000; /* arbitrary value */
+    printf("surprise2 :%d \n", pid);
+    message->mtype = (int) (pid % 10000); /* arbitrary value */
+    printf("surprise3 \n");
     message->val = value_to_send;
+    printf("surprise4 \n");
     send_val = msgsnd(queue_key, message, sizeof(message->val), !IPC_NOWAIT);
 
     if (send_val == -1)
@@ -544,7 +558,7 @@ void sendProcessMesssage(key_t queue_key, int get_value, int pid, struct Process
 void receiveIntValue(key_t queue_key, int get_value, int *value_to_receive, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    // printf("queue key int value receiver :%d \n", queue_key);
+    printf("queue key int value receiver :%d \n", queue_key);
     if (queue_key == -1)
     {
         perror("Error in create");
@@ -578,7 +592,7 @@ void receiveProcessValue(key_t queue_key, int get_value, struct Process *process
     else
     {
         *process_to_receive = message->p;
-        // printf("has receivd \n");
-        // printProcess(process_to_receive);
+        printf("has receivd \n");
+        printProcess(process_to_receive);
     }
 }
