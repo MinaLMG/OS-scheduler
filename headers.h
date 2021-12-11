@@ -366,7 +366,7 @@ void check(struct Queue *q, struct Process *p, char type)
             }
             break;
         case 'p' /* priority */:
-            printf("inserting by priority\n");
+            // printf("inserting by priority\n");
             if (p->priority < q->pri_que[i]->priority)
 
             {
@@ -513,21 +513,21 @@ struct msgIntBuff
 void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    printf("queue key int value sender :%d \n", queue_key);
+    // printf("queue key int value sender :%d \n", queue_key);
     if (queue_key == -1)
     {
 
-        printf("surprise1");
+        // printf("surprise1");
         perror("Error in create");
         exit(-1);
     }
-    printf("surprise1 \n");
+    // printf("surprise1 \n");
     int send_val;
-    printf("surprise2 :%d \n", pid);
+    // printf("surprise2 :%d \n", pid);
     message->mtype = (int) (pid % 10000); /* arbitrary value */
-    printf("surprise3 \n");
+    // printf("surprise3 \n");
     message->val = value_to_send;
-    printf("surprise4 \n");
+    // printf("surprise4 \n");
     send_val = msgsnd(queue_key, message, sizeof(message->val), !IPC_NOWAIT);
 
     if (send_val == -1)
@@ -558,7 +558,7 @@ void sendProcessMesssage(key_t queue_key, int get_value, int pid, struct Process
 void receiveIntValue(key_t queue_key, int get_value, int *value_to_receive, struct msgIntBuff *message)
 {
     queue_key = msgget(get_value, IPC_CREAT | 0644);
-    printf("queue key int value receiver :%d \n", queue_key);
+    // printf("queue key int value receiver :%d \n", queue_key);
     if (queue_key == -1)
     {
         perror("Error in create");
@@ -592,7 +592,7 @@ void receiveProcessValue(key_t queue_key, int get_value, struct Process *process
     else
     {
         *process_to_receive = message->p;
-        printf("has receivd \n");
-        printProcess(process_to_receive);
+        // printf("has receivd \n");
+        // printProcess(process_to_receive);
     }
 }
