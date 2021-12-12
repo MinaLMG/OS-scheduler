@@ -1,48 +1,30 @@
-while (1)
+#include "headers.h"
+#include <time.h>
+/* Modify this file as needed*/
+int remainingtime;
+
+int main(int agrc, char * argv[])
+{
+    printf("received in the process %d \n",argv[0]);
+    clock_t start=clock();
+    initClk();
+    key_t from_scheduler_to_process;
+    struct msgIntBuff * message;
+    int remainingtime;
+    receiveIntValue(from_scheduler_to_process,getpid(),&remainingtime,message);
+    //TODO it needs to get the remaining time from somewhere
+    //remainingtime = ??;
+    while (remainingtime > 0)
     {
-        printf("i'm here \n");
-        printf(" address = %d \n", currentProcess->address);
-        if (currentProcess->address == -1)
-        {
-            struct Process *temp;
-            temp = dequeue(Q);
-            printf("dequiuing scheduler queue \n");
-            printProcess(temp);
-            if (!temp)
-                continue;
-            else
-                *currentProcess = *temp;
-            int process_id = fork();
-            if (process_id == 0)
-            {
-                char *argv[] = {"./process.out", NULL};
-                execv(argv[0], argv);
-            }
-            currentProcess->address = process_id;
-            printProcess(currentProcess);
-            printf("new process id = %d \n", currentProcess->address);
-            key_t from_scheduler_to_process;
-            struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-            printf("%d \n", currentProcess->remaining_time);
-            sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
-            printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
-            // printProcess(currentProcess);
-            printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
-            currentProcess->remaining_time--;
-            // raise(SIGSTOP);
-        }
-        else
-        {
-            printf("entering else condition \n");
-            // kill(currentProcess->address, SIGCONT);
-            key_t from_scheduler_to_process;
-            struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-            sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
-            printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
-            // printProcess(currentProcess);
-            // printf("%d \n",currentProcess->remaining_time);
-            printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), (currentProcess->remaining_time));
-            currentProcess->remaining_time--;
-        }
-        printf(" address = %d \n", currentProcess->address);
+        printf("I'm inside the process , remaining time = %d clock = %g clocks per sec = %g \n",remainingtime,(double)clock(),(double)CLOCKS_PER_SEC);
+        // printf("I'm inside the process , remaining time = %d\n",remainingtime);
+        // clock_t current =clock();
+        // p
+        receiveIntValue(from_scheduler_to_process,getpid(),&remainingtime,message);
+        // remainingtime = ??;
     }
+    
+    destroyClk(false);
+    
+    return 0;
+}
