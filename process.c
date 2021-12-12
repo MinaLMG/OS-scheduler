@@ -5,6 +5,13 @@ int remainingtime;
 
 int main(int agrc, char * argv[])
 {
+    char* a = argv[1];
+    // printf("%s",a);
+    int running_time =atoi(a);
+    char* b = argv[2];
+    // printf("%s",b);
+    int start_time =atoi(b);
+    printf("received in the process run %d start %d\n",running_time,start_time);
     initClk();
     key_t from_scheduler_to_process;
     struct msgIntBuff * message;
