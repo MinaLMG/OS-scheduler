@@ -78,7 +78,30 @@ int main(int argc, char *argv[])
             int process_id = fork();
             if (process_id == 0)
             {
-                char *argv[] = {"./process.out", NULL};
+                /*int number, reverse,k;
+                char string[20];
+                number = currentProcess->run_time;
+                int index = 0;
+                printf("number %d index %d \n",number,index);
+                if (number > 0 || number == 0)
+                {
+                    do
+                    {
+                        reverse = number % 10;
+                        printf("reverse %d\n",reverse);
+                        string[index++] = reverse;
+                        number /= 10;
+                    } while (number != 0);
+                    printf("do while terminated \n");
+                }
+                printf("sending \n");
+                for (k = index; k >= 0; k--)
+                    printf("%c \n", string[k]);*/
+                char running_time_buffer[20]; // more than big enough for a 32 bit integer
+                snprintf(running_time_buffer, 20, "%d",currentProcess->run_time);
+                char starting_time_buffer[20]; // more than big enough for a 32 bit integer
+                snprintf(starting_time_buffer, 20, "%d",getClk());
+                char *argv[] = {"./process.out", running_time_buffer,starting_time_buffer, NULL};
                 execv(argv[0], argv);
             }
             currentProcess->address = process_id;
