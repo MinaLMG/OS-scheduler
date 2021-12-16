@@ -524,7 +524,7 @@ void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send,
     // printf("surprise1 \n");
     int send_val;
     // printf("surprise2 :%d \n", pid);
-    message->mtype = (int) (pid % 10000); /* arbitrary value */
+    message->mtype = (int)(pid % 10000); /* arbitrary value */
     // printf("surprise3 \n");
     message->val = value_to_send;
     // printf("surprise4 \n");
@@ -595,4 +595,27 @@ void receiveProcessValue(key_t queue_key, int get_value, struct Process *process
         // printf("has receivd \n");
         // printProcess(process_to_receive);
     }
+}
+int receiveProcessValueNoWait(key_t queue_key, int get_value, struct Process *process_to_receive, struct msgProcessBuff *message)
+{
+    // printf("enterd function at receiver \n");
+    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    // printf("queue key value receiver :%d \n", queue_key);
+    if (queue_key == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    int rec_val;
+    rec_val = msgrcv(queue_key, message, sizeof(message->p), 0, IPC_NOWAIT);
+    if (rec_val == -1)
+    {
+    }
+    else
+    {
+        *process_to_receive = message->p;
+        // printf("has receivd \n");
+        // printProcess(process_to_receive);
+    }
+    return rec_val;
 }
