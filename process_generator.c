@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
         p->null = 0;
         p->address = -1;
         p->last_process = 0;
+        p->waiting_time=0;
         // printProcess(p);
 
         insert_by_priority(q, p, 'a');
