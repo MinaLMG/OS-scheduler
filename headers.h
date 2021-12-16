@@ -132,6 +132,7 @@ struct Process
     int null;
     int address;
     int last_process;
+    int waiting_time;
 };
 void printProcess(struct Process *p)
 {
