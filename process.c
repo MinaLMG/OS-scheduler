@@ -5,6 +5,7 @@ int remainingtime;
 
 int main(int agrc, char *argv[])
 {
+    
     char *a = argv[1];
     // printf("%s",a);
     int running_time = atoi(a);
