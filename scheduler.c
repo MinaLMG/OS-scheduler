@@ -154,6 +154,9 @@ int main(int argc, char *argv[])
             }
             currentProcess->address = process_id;
             printProcess(currentProcess);
+            printf("i'm sleeping at %d for %d \n", getClk(),currentProcess->run_time);
+            sleep(currentProcess->run_time);
+            printf("i'm awaken at %d\n", getClk());
             // printf("new process id = %d \n", currentProcess->address);
             key_t from_scheduler_to_process;
             struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
@@ -162,7 +165,10 @@ int main(int argc, char *argv[])
             // printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
             // printProcess(currentProcess);
             printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
-            currentProcess->remaining_time--;
+            if (algorithm == 1)
+                currentProcess->remaining_time = 0;
+            else
+                currentProcess->remaining_time--;
             if (currentProcess->remaining_time == 0)
             {
                 if (currentProcess->last_process == 1)
