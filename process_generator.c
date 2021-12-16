@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
     q->pri_que[q->rear->arrival_time]->last_process = 1;
     // printProcess( pri_que[1]);
-    // display_queue(q);
+    display_queue(q);
     /*for (int i = 0; i < 6; i++)
     {
         struct Process *temp = dequeue(q);
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     sendProcessMesssage(fromGenToSchPro, 500, getpid(), *to_send, &message);
-                    printf("\nMessage sent at time %d:\n", x);
+                    printf("\nProcess sent at time %d:\n", x);
                     printProcess(&message.p);
                     to_send = dequeue(q);
                     last_clock = x;
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
                     struct Process *null_process = (struct Process *)malloc(sizeof(struct Process));
                     null_process->null = 100;
                     sendProcessMesssage(fromGenToSchPro, 500, getpid(), *null_process, &message);
-                    printf("\nMessage sent at time %d : \n", x);
+                    printf("\nProcess sent at time %d : \n", x);
                     printProcess(&message.p);
                     last_clock = x;
                 }
