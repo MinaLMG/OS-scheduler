@@ -201,3 +201,7 @@ int main(int argc, char *argv[])
     // printf("\nMessage sent from generator to scheduler at time %d : %d \n", getClk(),int_message->val);
     destroyClk(true);
 }
+
+if(algorithm==1)
+else if(algorithm==2)
+else if(algorithm==3)
