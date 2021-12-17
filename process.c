@@ -2,10 +2,27 @@
 #include "time.h"
 /* Modify this file as needed*/
 int remainingtime;
+// void SIGSTOPhandler();
+// void SIGCONThandler();
+// void SIGSTOPhandler()
+// {
+//     signal(SIGCONT, SIGCONThandler);
+//     printf("has received a sigstop signal at time %d\n", getClk());
+//     signal(SIGSTOP, SIG_DFL);
+//     raise(SIGSTOP);
+// }
 
+// void SIGCONThandler()
+// {
+//     signal(SIGSTOP, SIGSTOPhandler);
+//     printf("has received a sigcont signal at time %d\n", getClk());
+//     signal(SIGCONT, SIG_DFL);
+//     raise(SIGCONT);
+// }
 int main(int agrc, char *argv[])
 {
-    
+    // signal(SIGSTOP, SIGSTOPhandler);
+    // signal(SIGCONT, SIGCONThandler);
     char *a = argv[1];
     // printf("%s",a);
     int running_time = atoi(a);
