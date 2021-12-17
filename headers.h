@@ -250,13 +250,11 @@ void display_queue(struct Queue *);
 }*/
 
 /* Function to create an empty priority queue */
-struct Process p1;
-struct Process *pptr1 = &p1;
-struct Process p2;
-struct Process *pptr2 = &p2;
 
 struct Queue *create()
 {
+    struct Process *pptr1 = ( struct Process *)malloc(sizeof(struct Process));
+    struct Process *pptr2 = ( struct Process *)malloc(sizeof(struct Process));
     struct Queue *q = (struct Queue *)malloc(sizeof(struct Queue));
     pptr1->arrival_time = -1;
     q->front = pptr1;
@@ -619,4 +617,28 @@ int receiveProcessValueNoWait(key_t queue_key, int get_value, struct Process *pr
         // printProcess(process_to_receive);
     }
     return rec_val;
+}
+void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess)
+{
+    if (algorithm == 2)
+    {
+        printf("i'm sleeping at %d for %d \n", getClk(), 1);
+        sleep(1);
+        currentProcess->remaining_time--;
+    }
+    else if (algorithm == 3)
+    {
+        if (rr < currentProcess->remaining_time)
+        {
+            printf("i'm sleeping at %d for %d \n", getClk(), rr);
+            sleep(rr);
+            currentProcess->remaining_time -= rr;
+        }
+        else
+        {
+            printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
+            sleep(currentProcess->remaining_time);
+            currentProcess->remaining_time = 0;
+        }
+    }
 }
