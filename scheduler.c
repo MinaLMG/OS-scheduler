@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     {
         if (algorithm == 1)
         {
-            if (finish == 1 && finish_time == getClk())
+            if (finish == 1)
                 break;
             struct Process *to_receive = (struct Process *)malloc(sizeof(struct Process));
             // printf("i'm here \n");
@@ -149,6 +149,10 @@ int main(int argc, char *argv[])
             printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->run_time);
             sleep(currentProcess->run_time);
             printf("i'm awaken at %d\n", getClk());
+            int pid, status;
+            pid = wait(&status);
+            if (!(status & 0x00FF))
+                printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
             // printf("new process id = %d \n", currentProcess->address);
             key_t from_scheduler_to_process;
             struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
@@ -266,6 +270,7 @@ int main(int argc, char *argv[])
                 printf("process adderss=%d\n", currentProcess->address);
                 if (currentProcess->address != -1)
                 {
+                    printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                     kill(currentProcess->address, SIGSTOP);
                     fprintf(fptr, "at time %d process %d stopped arr %d total %d remain %d wait %d \n",
                             getClk(),
@@ -309,13 +314,21 @@ int main(int argc, char *argv[])
                     // }
                     sleep(1);
                     printf("process adderss=%d\n", currentProcess->address);
-                    // kill(currentProcess->id, SIGSTOP);
-                    printf("i'm awaken at %d\n", getClk());
                     currentProcess->remaining_time--;
+                    if (currentProcess->remaining_time != 0)
+                    {
+                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        kill(currentProcess->address, SIGSTOP);
+                    }
+                    printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
-                        currentProcess = (struct Process *)malloc(sizeof(struct Process));
-                        currentProcess->address = -1;
+                        int pid, status;
+                        printf("waiting for status\n");
+                        pid = wait(&status);
+                        if (!(status & 0x00FF))
+                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        currentProcess->finish_time = getClk();
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
                                 currentProcess->id,
@@ -325,6 +338,8 @@ int main(int argc, char *argv[])
                                 getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time,
                                 currentProcess->finish_time - currentProcess->arrival_time,
                                 (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
+                        currentProcess = (struct Process *)malloc(sizeof(struct Process));
+                        currentProcess->address = -1;
                     }
                     if (currentProcess->last_process == 1)
                         last_process = 1;
@@ -337,7 +352,8 @@ int main(int argc, char *argv[])
                     sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                     printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                    kill(currentProcess->id, SIGCONT);
+                    printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                    kill(currentProcess->address, SIGCONT);
                     fprintf(fptr, "at time %d process %d resumed arr %d total %d remain %d wait %d \n",
                             getClk(),
                             currentProcess->id,
@@ -347,11 +363,20 @@ int main(int argc, char *argv[])
                             getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);
                     sleep(1);
                     printf("process address=%d\n", currentProcess->address);
-                    kill(currentProcess->id, SIGSTOP);
-                    printf("i'm awaken at %d\n", getClk());
                     currentProcess->remaining_time--;
+                    if (currentProcess->remaining_time != 0)
+                    {
+                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        kill(currentProcess->address, SIGSTOP);
+                    }
+                    printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
+                        int pid, status;
+                        printf("waiting for status\n");
+                        pid = wait(&status);
+                        if (!(status & 0x00FF))
+                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         currentProcess->finish_time = getClk();
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
@@ -374,14 +399,24 @@ int main(int argc, char *argv[])
                 sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                 printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                 printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                kill(currentProcess->id, SIGCONT);
+                printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                kill(currentProcess->address, SIGCONT);
                 sleep(1);
                 printf("process address=%d\n", currentProcess->address);
-                kill(currentProcess->id, SIGSTOP);
-                printf("i'm awaken at %d\n", getClk());
                 currentProcess->remaining_time--;
+                if (currentProcess->remaining_time != 0)
+                {
+                    printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                    kill(currentProcess->address, SIGSTOP);
+                }
+                printf("i'm awaken at %d\n", getClk());
                 if (currentProcess->remaining_time == 0)
                 {
+                    int pid, status;
+                    printf("waiting for status\n");
+                    pid = wait(&status);
+                    if (!(status & 0x00FF))
+                        printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                     currentProcess->finish_time = getClk();
                     fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                             getClk(),
@@ -531,11 +566,22 @@ int main(int argc, char *argv[])
                     {
                         sleep(rr);
                         currentProcess->remaining_time -= rr;
+                        if (currentProcess->remaining_time != 0)
+                        {
+                            printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                            kill(currentProcess->address, SIGSTOP);
+                        }
                     }
                     else
                     {
                         sleep(currentProcess->remaining_time);
                         currentProcess->remaining_time = 0;
+                        currentProcess->finish_time = getClk();
+                        if (currentProcess->remaining_time != 0)
+                        {
+                            printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                            kill(currentProcess->address, SIGSTOP);
+                        }
                     }
                     printf("process adderss=%d\n", currentProcess->address);
                     // kill(currentProcess->id, SIGSTOP);
@@ -543,7 +589,12 @@ int main(int argc, char *argv[])
 
                     if (currentProcess->remaining_time == 0)
                     {
-
+                        int pid, status;
+                        printf("waiting for status\n");
+                        pid = wait(&status);
+                        if (!(status & 0x00FF))
+                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        currentProcess->finish_time = getClk();
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
                                 currentProcess->id,
@@ -567,7 +618,7 @@ int main(int argc, char *argv[])
                     sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                     printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                    kill(currentProcess->id, SIGCONT);
+                    kill(currentProcess->address, SIGCONT);
                     fprintf(fptr, "at time %d process %d resumed arr %d total %d remain %d wait %d \n",
                             getClk(),
                             currentProcess->id,
@@ -579,17 +630,33 @@ int main(int argc, char *argv[])
                     {
                         sleep(rr);
                         currentProcess->remaining_time -= rr;
+                        if (currentProcess->remaining_time != 0)
+                        {
+                            printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                            kill(currentProcess->address, SIGSTOP);
+                        }
                     }
                     else
                     {
                         sleep(currentProcess->remaining_time);
                         currentProcess->remaining_time = 0;
+                        if (currentProcess->remaining_time != 0)
+                        {
+                            printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                            kill(currentProcess->address, SIGSTOP);
+                        }
                     }
                     printf("process address=%d\n", currentProcess->address);
-                    kill(currentProcess->id, SIGSTOP);
+                    // kill(currentProcess->address, SIGSTOP);
                     printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
+                        int pid, status;
+                        printf("waiting for status\n");
+                        pid = wait(&status);
+                        if (!(status & 0x00FF))
+                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+
                         currentProcess->finish_time = getClk();
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
@@ -612,22 +679,38 @@ int main(int argc, char *argv[])
                 sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                 printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                 printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                kill(currentProcess->id, SIGCONT);
+                kill(currentProcess->address, SIGCONT);
                 if (rr < currentProcess->remaining_time)
                 {
                     sleep(rr);
                     currentProcess->remaining_time -= rr;
+                    if (currentProcess->remaining_time != 0)
+                    {
+                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        kill(currentProcess->address, SIGSTOP);
+                    }
                 }
                 else
                 {
                     sleep(currentProcess->remaining_time);
                     currentProcess->remaining_time = 0;
+                    if (currentProcess->remaining_time != 0)
+                    {
+                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        kill(currentProcess->address, SIGSTOP);
+                    }
                 }
                 printf("process address=%d\n", currentProcess->address);
-                kill(currentProcess->id, SIGSTOP);
+                // kill(currentProcess->id, SIGSTOP);
                 printf("i'm awaken at %d\n", getClk());
                 if (currentProcess->remaining_time == 0)
                 {
+                    int pid, status;
+                    printf("waiting for status\n");
+                    pid = wait(&status);
+                    if (!(status & 0x00FF))
+                        printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+
                     currentProcess->finish_time = getClk();
                     fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                             getClk(),
@@ -649,5 +732,6 @@ int main(int argc, char *argv[])
     // struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
     // sendIntMesssage(from_scheduler_to_generator, getppid(), getpid(), 1, int_message);
     // printf("\nMessage sent from generator to scheduler at time %d : %d \n", getClk(),int_message->val);
-    destroyClk(true);
+    destroyClk(false);
+    return 0;
 }
