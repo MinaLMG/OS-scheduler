@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
         rr = message2.val;
     }
     struct Queue *Q = create();
-    struct Queue *Qsleeping = create();
+    struct Queue *Qserved = create();
     struct Process *currentProcess = (struct Process *)malloc(sizeof(struct Process));
     currentProcess->address = -1;
     // printf(" address = %d \n", (int)(currentProcess->address));
@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
                 {
                     printf("displaying scheduler queue before\n");
                     display_queue(Q);
+                    display_queue(Qserved);
                     insert_by_priority(Q, to_receive, 'p');
                     // printf(" address = %d \n", currentProcess->address);
                     printf("displaying scheduler queue \n");
@@ -163,7 +164,8 @@ int main(int argc, char *argv[])
             // printProcess(currentProcess);
             printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
             currentProcess->remaining_time = 0;
-            fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n",
+            insert_by_priority(Qserved, currentProcess, 'w');
+            fprintf(fptr, "at time %d d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n",
                     getClk(),
                     currentProcess->id,
                     currentProcess->arrival_time,
@@ -318,28 +320,7 @@ int main(int argc, char *argv[])
                     // for(int k=0;k<Q->rear->arrival_time;k++){
                     //     Q->pri_que[k]->waiting_time++;
                     // }
-
-                    if (algorithm == 2)
-                    {
-                        printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                        sleep(1);
-                        currentProcess->remaining_time--;
-                    }
-                    else if (algorithm == 3)
-                    {
-                        if (rr < currentProcess->remaining_time)
-                        {
-                            printf("i'm sleeping at %d for %d \n", getClk(), rr);
-                            sleep(rr);
-                            currentProcess->remaining_time -= rr;
-                        }
-                        else
-                        {
-                            printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
-                            sleep(currentProcess->remaining_time);
-                            currentProcess->remaining_time = 0;
-                        }
-                    }
+                    sleepDetrmine(algorithm, rr, currentProcess);
                     if (currentProcess->remaining_time != 0)
                     {
                         printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -354,6 +335,7 @@ int main(int argc, char *argv[])
                         if (!(status & 0x00FF))
                             printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         currentProcess->finish_time = getClk();
+                        insert_by_priority(Qserved, currentProcess, 'w');
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
                                 currentProcess->id,
@@ -386,27 +368,8 @@ int main(int argc, char *argv[])
                             currentProcess->run_time,
                             currentProcess->remaining_time,
                             getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);
-                    if (algorithm == 2)
-                    {
-                        printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                        sleep(1);
-                        currentProcess->remaining_time--;
-                    }
-                    else if (algorithm == 3)
-                    {
-                        if (rr < currentProcess->remaining_time)
-                        {
-                            printf("i'm sleeping at %d for %d \n", getClk(), rr);
-                            sleep(rr);
-                            currentProcess->remaining_time -= rr;
-                        }
-                        else
-                        {
-                            printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
-                            sleep(currentProcess->remaining_time);
-                            currentProcess->remaining_time = 0;
-                        }
-                    }
+
+                    sleepDetrmine(algorithm, rr, currentProcess);
                     printf("process address=%d\n", currentProcess->address);
                     if (currentProcess->remaining_time != 0)
                     {
@@ -422,6 +385,7 @@ int main(int argc, char *argv[])
                         if (!(status & 0x00FF))
                             printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         currentProcess->finish_time = getClk();
+                        insert_by_priority(Qserved, currentProcess, 'w');
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
                                 currentProcess->id,
@@ -445,27 +409,7 @@ int main(int argc, char *argv[])
                 printf("i'm sleeping at %d for %d \n", getClk(), 1);
                 printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                 kill(currentProcess->address, SIGCONT);
-                if (algorithm == 2)
-                {
-                    printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                    sleep(1);
-                    currentProcess->remaining_time--;
-                }
-                else if (algorithm == 3)
-                {
-                    if (rr < currentProcess->remaining_time)
-                    {
-                        printf("i'm sleeping at %d for %d \n", getClk(), rr);
-                        sleep(rr);
-                        currentProcess->remaining_time -= rr;
-                    }
-                    else
-                    {
-                        printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
-                        sleep(currentProcess->remaining_time);
-                        currentProcess->remaining_time = 0;
-                    }
-                }
+                sleepDetrmine(algorithm, rr, currentProcess);
                 if (currentProcess->remaining_time != 0)
                 {
                     printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -480,6 +424,7 @@ int main(int argc, char *argv[])
                     if (!(status & 0x00FF))
                         printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                     currentProcess->finish_time = getClk();
+                    // insert_by_priority(Qserved, currentProcess, 'w');
                     fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                             getClk(),
                             currentProcess->id,
@@ -496,6 +441,8 @@ int main(int argc, char *argv[])
         }
     }
     fclose(fptr);
+    printf("the served processes\n");
+    display_queue(Qserved);
     // key_t from_scheduler_to_generator;
     // struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
     // sendIntMesssage(from_scheduler_to_generator, getppid(), getpid(), 1, int_message);
