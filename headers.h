@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-
+#include <math.h>
 typedef short bool;
 #define true 1
 #define false 0
@@ -133,6 +133,7 @@ struct Process
     int address;
     int last_process;
     int waiting_time;
+    float WTA;
 };
 void printProcess(struct Process *p)
 {
@@ -253,8 +254,8 @@ void display_queue(struct Queue *);
 
 struct Queue *create()
 {
-    struct Process *pptr1 = ( struct Process *)malloc(sizeof(struct Process));
-    struct Process *pptr2 = ( struct Process *)malloc(sizeof(struct Process));
+    struct Process *pptr1 = (struct Process *)malloc(sizeof(struct Process));
+    struct Process *pptr2 = (struct Process *)malloc(sizeof(struct Process));
     struct Queue *q = (struct Queue *)malloc(sizeof(struct Queue));
     pptr1->arrival_time = -1;
     q->front = pptr1;
@@ -641,4 +642,22 @@ void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess)
             currentProcess->remaining_time = 0;
         }
     }
+}
+float calculateSD(float data[],int size)
+{
+    float sum = 0.0, mean, SD = 0.0;
+    int i;
+    for (i = 0; i < size; ++i)
+    {
+        sum += data[i];
+    }
+    mean = sum / size;
+    for (i = 0; i < size; ++i)
+    {
+        SD += pow(data[i] - mean, 2);
+    }
+    return sqrt(SD / size);
+}
+void removeMessageQueue(int msgqid){
+    msgctl(msgqid, IPC_RMID, (struct msqid_ds *) 0);
 }
