@@ -6,6 +6,14 @@ int main(int argc, char *argv[])
 {
     initClk();
 
+    int start_time_stat = -1;
+    int finish_time_stat;
+    int runnig_time_stat = 0;
+    int count_stat = 0;
+    float total_WTA_stat = 0;
+    int total_waiting_stat = 0;
+    float avg_WTA_stat;
+    float avg_waiting_stat;
     // TODO implement the scheduler :)
     // upon termination release the clock resources
     FILE *fptr;
@@ -65,6 +73,10 @@ int main(int argc, char *argv[])
                 // printProcess(&message.p);
                 if (to_receive->null != 100)
                 {
+                    if (start_time_stat == -1)
+                        start_time_stat = getClk();
+                    runnig_time_stat += to_receive->run_time;
+                    count_stat++;
                     printf("displaying scheduler queue before\n");
                     display_queue(Q);
                     display_queue(Qserved);
@@ -109,7 +121,8 @@ int main(int argc, char *argv[])
 
             finish_time = getClk() + currentProcess->run_time;
             currentProcess->finish_time = getClk() + currentProcess->run_time;
-
+            currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
+            finish_time_stat = currentProcess->finish_time;
             fprintf(fptr, "at time %d process %d started arr %d total %d remain %d wait %d \n",
                     getClk(),
                     currentProcess->id,
@@ -165,6 +178,7 @@ int main(int argc, char *argv[])
             printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
             currentProcess->remaining_time = 0;
             insert_by_priority(Qserved, currentProcess, 'w');
+            currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
             fprintf(fptr, "at time %d d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n",
                     getClk(),
                     currentProcess->id,
@@ -207,6 +221,10 @@ int main(int argc, char *argv[])
                 // printProcess(&message.p);
                 if (to_receive->null != 100)
                 {
+                    if (start_time_stat == -1)
+                        start_time_stat = getClk();
+                    runnig_time_stat += to_receive->run_time;
+                    count_stat++;
                     printf("displaying scheduler queue before\n");
                     display_queue(Q);
                     if (algorithm == 2)
@@ -335,6 +353,9 @@ int main(int argc, char *argv[])
                         if (!(status & 0x00FF))
                             printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         currentProcess->finish_time = getClk();
+                        currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
+                        currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
+                        finish_time_stat = currentProcess->finish_time;
                         insert_by_priority(Qserved, currentProcess, 'w');
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
@@ -385,6 +406,9 @@ int main(int argc, char *argv[])
                         if (!(status & 0x00FF))
                             printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         currentProcess->finish_time = getClk();
+                        currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
+                        currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
+                        finish_time_stat = currentProcess->finish_time;
                         insert_by_priority(Qserved, currentProcess, 'w');
                         fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                                 getClk(),
@@ -423,8 +447,12 @@ int main(int argc, char *argv[])
                     pid = wait(&status);
                     if (!(status & 0x00FF))
                         printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                    // removeMessageQueue();
                     currentProcess->finish_time = getClk();
-                    // insert_by_priority(Qserved, currentProcess, 'w');
+                    currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
+                    currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
+                    finish_time_stat = currentProcess->finish_time;
+                    insert_by_priority(Qserved, currentProcess, 'w');
                     fprintf(fptr, "at time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n",
                             getClk(),
                             currentProcess->id,
@@ -441,12 +469,47 @@ int main(int argc, char *argv[])
         }
     }
     fclose(fptr);
-    printf("the served processes\n");
-    display_queue(Qserved);
+    // printf("the served processes\n");
+    // display_queue(Qserved);
+    FILE *fptr2;
+    fptr2 = fopen("stats.txt", "w");
+    if (fptr2 == NULL)
+    {
+        printf("Error! opening file");
+
+        // Program exits if the file pointer returns NULL.
+        exit(1);
+    }
+    printf("file is opened successfully\n");
+    printf("finish_time_stat %d ,start_time_stat %d ,runnig_time_stat %d\n", finish_time_stat, start_time_stat, runnig_time_stat);
+    float cpu_utilization = (float)(finish_time_stat - start_time_stat) * 100.0 / (float)(runnig_time_stat);
+    // printf("nouran \n");
+    printf("cpu utiliztioin = %.2f\n", cpu_utilization);
+    // TODO:add percentage
+    fprintf(fptr2, "CPU utiliztaion = %.2f %c\n", cpu_utilization, '%');
+    for (int k = 0; k < Qserved->rear->arrival_time + 1; k++)
+    {
+        // Qserved->pri_que[k]->
+        total_WTA_stat += Qserved->pri_que[k]->WTA;
+        total_waiting_stat += Qserved->pri_que[k]->waiting_time;
+    }
+    printf("count = %d , total_WTA_stat = %.2f ,total_waiting_stat = %d \n", count_stat, total_WTA_stat, total_waiting_stat);
+    avg_WTA_stat = (float)(total_WTA_stat) / (float)(count_stat);
+    fprintf(fptr2, "Avg WTA = %.2f \n", avg_WTA_stat);
+    avg_waiting_stat = (float)(total_waiting_stat) / (float)(count_stat);
+    fprintf(fptr2, "Avg Waiting = %.2f \n", avg_waiting_stat);
+    int k;
+    float data[Qserved->rear->arrival_time + 1];
+    for (k = 0; k < Qserved->rear->arrival_time + 1; k++)
+        data[k] = Qserved->pri_que[k]->WTA;
+    fprintf(fptr2, "Std WTA = %.2f \n", calculateSD(data, count_stat));
+    fclose(fptr2);
     // key_t from_scheduler_to_generator;
     // struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
     // sendIntMesssage(from_scheduler_to_generator, getppid(), getpid(), 1, int_message);
     // printf("\nMessage sent from generator to scheduler at time %d : %d \n", getClk(),int_message->val);
     destroyClk(false);
+    removeMessageQueue(fromGenToSchAlg);
+    removeMessageQueue(fromGenToSchPro);
     return 0;
 }
