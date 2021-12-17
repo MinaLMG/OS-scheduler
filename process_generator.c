@@ -1,10 +1,15 @@
 #include "headers.h"
-
+int finish = 0;
 void clearResources(int);
-
+void terminate()
+{
+    printf("changing finish boolean value\n");
+    finish = 1;
+}
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
+    signal(SIGCHLD, terminate);
     // TODO Initialization
     // 1. Read the input files.
     FILE *fptr;
@@ -58,7 +63,7 @@ int main(int argc, char *argv[])
         p->null = 0;
         p->address = -1;
         p->last_process = 0;
-        p->waiting_time=0;
+        p->waiting_time = 0;
         // printProcess(p);
 
         insert_by_priority(q, p, 'a');
@@ -188,7 +193,7 @@ int main(int argc, char *argv[])
                 else
                     continue;
             }
-            while (1)
+            while (!finish)
             {
                 // sleep(2);
                 // printf("%d \n",getClk());
@@ -217,15 +222,17 @@ int main(int argc, char *argv[])
             }
             // printf("after while \n");
         }
+
         // 7. Clear clock resources
         //     while(1)
         //     {
         //         printf("current time: %d",getClk());
         //         sleep(1);
         //    }
-        while (1)
-        {
-        }
+        int pid, status;
+        pid = wait(&status);
+        if (!(status & 0x00FF))
+            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
         destroyClk(true);
         // kill(schedulerId,SIGTERM);
     }
