@@ -1,4 +1,4 @@
- 
+
 #include <stdio.h> //if you don't use scanf/printf change this include
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -620,12 +620,24 @@ int receiveProcessValueNoWait(key_t queue_key, int get_value, struct Process *pr
     }
     return rec_val;
 }
-void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess)
+void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess, char *owner)
 {
     if (algorithm == 2)
     {
         printf("i'm sleeping at %d for %d \n", getClk(), 1);
-        pause();
+        // int x = getClk();
+        // pause();
+        // if (*owner == 'c')
+        // {
+        //     currentProcess->remaining_time = 0;
+        // }
+        // else if (*owner == 'p')
+        // {
+        //     int y = getClk();
+        //     currentProcess->remaining_time -= (y-x);
+        //     *owner = 'c';
+        // }
+        sleep(1);
         currentProcess->remaining_time--;
     }
     else if (algorithm == 3)
