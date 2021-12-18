@@ -6,10 +6,17 @@ void terminate()
     printf("changing finish boolean value\n");
     finish = 1;
 }
+void alarmHandler(int signum)
+{
+    // printf("i'm in the handler \n");
+}
+key_t fromGenToSchPro;
+key_t fromGenToSchAlg;
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
     signal(SIGCHLD, terminate);
+    signal(SIGALRM, alarmHandler);
     // TODO Initialization
     // 1. Read the input files.
     FILE *fptr;
@@ -73,7 +80,7 @@ int main(int argc, char *argv[])
     }
     q->pri_que[q->rear->arrival_time]->last_process = 1;
     // printProcess( pri_que[1]);
-    display_queue(q);
+    // display_queue(q);
     /*for (int i = 0; i < 6; i++)
     {
         struct Process *temp = dequeue(q);
@@ -148,16 +155,16 @@ int main(int argc, char *argv[])
         {
             // printf("current time is %d\n", getClk());
             // display_queue(q);
-            key_t fromGenToSchAlg;
+
             struct msgIntBuff message2;
-            sendIntMesssage(fromGenToSchAlg, 550, getpid(), algorithm, &message2);
+            sendIntMesssage(&fromGenToSchAlg, 550, getpid(), algorithm, &message2);
             // printf("\nMessage sent: %s\n", message.mtext);
-            printf("\nMessage sent: %d\n", message2.val);
+            // printf("\nMessage sent: %d\n", message2.val);
             if (algorithm == 3)
             {
                 message2.val = rr;
-                sendIntMesssage(fromGenToSchAlg, 550, getpid(), rr, &message2);
-                printf("\nMessage sent: %d\n", message2.val);
+                sendIntMesssage(&fromGenToSchAlg, 550, getpid(), rr, &message2);
+                // printf("\nMessage sent: %d\n", message2.val);
             }
             /*********/
             int last_clock = -1;
@@ -171,26 +178,29 @@ int main(int argc, char *argv[])
                 x = getClk();
                 if (x == to_send->arrival_time)
                 {
-                    key_t fromGenToSchPro;
+
                     struct msgProcessBuff message;
-                    sendProcessMesssage(fromGenToSchPro, 500, getpid(), *to_send, &message);
+                    sendProcessMesssage(&fromGenToSchPro, 500, getpid(), *to_send, &message);
+                    alarm(1);
+                    pause();
                     // if(algorithm==2){
                     //     kill(schedulerId,SIGUSR1);
                     // }
                     printf("\nProcess sent at time %d:\n", x);
-                    printProcess(&message.p);
+                    // printProcess(&message.p);
                     to_send = dequeue(q);
                     last_clock = x;
                 }
                 else if (x != last_clock)
                 {
-                    key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     struct Process *null_process = (struct Process *)malloc(sizeof(struct Process));
                     null_process->null = 100;
-                    sendProcessMesssage(fromGenToSchPro, 500, getpid(), *null_process, &message);
-                    printf("\nProcess sent at time %d : \n", x);
-                    printProcess(&message.p);
+                    sendProcessMesssage(&fromGenToSchPro, 500, getpid(), *null_process, &message);
+                    alarm(1);
+                    pause();
+                    // printf("\nProcess sent at time %d : \n", x);
+                    // printProcess(&message.p);
                     last_clock = x;
                 }
                 else
@@ -204,13 +214,14 @@ int main(int argc, char *argv[])
                 // printf("entered after last process at %d where last is %d\n",x,last_clock);
                 if (x != last_clock)
                 {
-                    key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     struct Process *null_process = (struct Process *)malloc(sizeof(struct Process));
                     null_process->null = 100;
-                    sendProcessMesssage(fromGenToSchPro, 500, getpid(), *null_process, &message);
-                    printf("\nMessage sent at time %d : \n", x);
-                    printProcess(&message.p);
+                    sendProcessMesssage(&fromGenToSchPro, 500, getpid(), *null_process, &message);
+                    alarm(1);
+                    pause();
+                    // printf("\nMessage sent at time %d : \n", x);
+                    // printProcess(&message.p);
                     last_clock = x;
                 }
                 else
@@ -244,6 +255,10 @@ int main(int argc, char *argv[])
 void clearResources(int signum)
 {
     // TODO Clears all resources in case of interruption
+    printf("i'm clearing \n");
+    removeMessageQueue(fromGenToSchAlg);
+    removeMessageQueue(fromGenToSchPro);
+    raise(SIGTERM);
 }
 
 /* Driver program to test above function */
