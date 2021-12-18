@@ -45,8 +45,8 @@ int main(int agrc, char *argv[])
         // receiveIntValue(from_scheduler_to_process, getpid(), &remainingtime, message);
         // remainingtime = ??;
     }
-    printf("the process is termenating at %d \n", getClk());
+    printf("the process %d is termenating at %d \n",getpid(), getClk());
     destroyClk(false);
-
+    kill(getppid(),SIGALRM);
     return 0;
 }
