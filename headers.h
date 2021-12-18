@@ -1,3 +1,4 @@
+ 
 #include <stdio.h> //if you don't use scanf/printf change this include
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -624,7 +625,7 @@ void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess)
     if (algorithm == 2)
     {
         printf("i'm sleeping at %d for %d \n", getClk(), 1);
-        sleep(1);
+        pause();
         currentProcess->remaining_time--;
     }
     else if (algorithm == 3)
@@ -632,18 +633,20 @@ void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess)
         if (rr < currentProcess->remaining_time)
         {
             printf("i'm sleeping at %d for %d \n", getClk(), rr);
-            sleep(rr);
+            alarm(rr);
+            pause();
             currentProcess->remaining_time -= rr;
         }
         else
         {
             printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
-            sleep(currentProcess->remaining_time);
+            // alarm(currentProcess->remaining_time);
+            pause();
             currentProcess->remaining_time = 0;
         }
     }
 }
-float calculateSD(float data[],int size)
+float calculateSD(float data[], int size)
 {
     float sum = 0.0, mean, SD = 0.0;
     int i;
@@ -658,6 +661,7 @@ float calculateSD(float data[],int size)
     }
     return sqrt(SD / size);
 }
-void removeMessageQueue(int msgqid){
-    msgctl(msgqid, IPC_RMID, (struct msqid_ds *) 0);
+void removeMessageQueue(int msgqid)
+{
+    msgctl(msgqid, IPC_RMID, (struct msqid_ds *)0);
 }
