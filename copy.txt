@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
             key_t from_scheduler_to_process;
             struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
             // printf("%d \n", currentProcess->remaining_time);
-            sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+            sendIntMesssage(&from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
             // printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
             // printProcess(currentProcess);
             printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
             // kill(currentProcess->address, SIGCONT);
             key_t from_scheduler_to_process;
             struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-            sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+            sendIntMesssage(&from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
             // printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
             // printProcess(currentProcess);
             // printf("%d \n",currentProcess->remaining_time);
