@@ -6,13 +6,13 @@ key_t fromGenToSchPro;
 char owner = 'c';
 void handler(int signum)
 {
-    printf("i'm in the handler of sigusr1 \n");
+    // printf("i'm in the handler of sigusr1 \n");
     owner = 'p';
     raise(SIGALRM);
 }
 void alarmHandler(int signum)
 {
-    printf("i'm in the handler \n");
+    // printf("i'm in the handler \n");
 }
 int main(int argc, char *argv[])
 {
@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
     struct msgIntBuff message2;
     /* receive the value of algorithm */
     receiveIntValue(fromGenToSchAlg, 550, &algorithm, &message2);
-    printf("\nAlgorithm received: %d\n", message2.val);
+    // printf("\nAlgorithm received: %d\n", message2.val);
     // algorithm=(int)message2.val;
-    printf("algorithm = %d \n", algorithm);
+    // printf("algorithm = %d \n", algorithm);
     if (algorithm == 3)
     {
         receiveIntValue(fromGenToSchAlg, 550, &rr, &message2);
-        printf("\n rr received: %d\n", message2.val);
+        // printf("\n rr received: %d\n", message2.val);
         rr = message2.val;
     }
     struct Queue *Q = create();
@@ -76,10 +76,10 @@ int main(int argc, char *argv[])
             int rec_val = 1;
             while (rec_val != -1)
             {
-                printf("Process received : at %d \n", getClk());
+                // printf("Process received : at %d \n", getClk());
                 *to_receive = message.p;
-                printProcess(to_receive);
-                printf("at %d finish = %d , finish_time =%d \n", getClk(), finish, finish_time);
+                // printProcess(to_receive);
+                // printf("at %d finish = %d , finish_time =%d \n", getClk(), finish, finish_time);
                 if (to_receive->last_process == 1)
                     last_process = 1;
                 // printf(" address = %d \n", currentProcess->address);
@@ -90,13 +90,13 @@ int main(int argc, char *argv[])
                         start_time_stat = getClk();
                     runnig_time_stat += to_receive->run_time;
                     count_stat++;
-                    printf("displaying scheduler queue before\n");
-                    display_queue(Q);
-                    display_queue(Qserved);
+                    // printf("displaying scheduler queue before\n");
+                    // display_queue(Q);
+                    // display_queue(Qserved);
                     insert_by_priority(Q, to_receive, 'p');
                     // printf(" address = %d \n", currentProcess->address);
-                    printf("displaying scheduler queue \n");
-                    display_queue(Q);
+                    // printf("displaying scheduler queue \n");
+                    // display_queue(Q);
                     // printf("displaying scheduler queue after\n");
                 }
                 // printf("following1\n");
@@ -107,19 +107,19 @@ int main(int argc, char *argv[])
                 rec_val = receiveProcessValueNoWait(fromGenToSchPro, 500, to_receive, &message);
                 // printf("following3\n");
                 // display_queue(Q);
-                printf("rec_val %d \n", rec_val);
+                // printf("rec_val %d \n", rec_val);
                 // printf("following4\n");
                 // display_queue(Q);
             }
-            printf("passed nullity check at %d\n", getClk());
+            // printf("passed nullity check at %d\n", getClk());
             // printProcess(to_receive);
             // printf(" address = %d \n", currentProcess->address);
-            printProcess(currentProcess);
+            // printProcess(currentProcess);
             // printf("passed nullity check \n");
             struct Process *temp;
             temp = dequeue(Q);
-            printf("dequiuing scheduler queue \n");
-            printProcess(temp);
+            // printf("dequiuing scheduler queue \n");
+            // printProcess(temp);
             if (!temp)
             {
                 if (last_process)
@@ -173,11 +173,11 @@ int main(int argc, char *argv[])
                 execv(argv[0], argv);
             }
             currentProcess->address = process_id;
-            printProcess(currentProcess);
-            printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->run_time);
+            // printProcess(currentProcess);
+            // printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->run_time);
             // alarm(currentProcess->run_time);
             pause();
-            printf("i'm awaken at %d\n", getClk());
+            // printf("i'm awaken at %d\n", getClk());
             // int pid, status;
             // pid = wait(&status);
             // if (!(status & 0x00FF))
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
             sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
             // printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
             // printProcess(currentProcess);
-            printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
+            // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
             currentProcess->remaining_time = 0;
             insert_by_priority(Qserved, currentProcess, 'w');
             currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
@@ -220,15 +220,15 @@ int main(int argc, char *argv[])
                 break;
             struct Process *to_receive = (struct Process *)malloc(sizeof(struct Process));
             // printf("i'm here \n");
-            printf(" address = %d \n", currentProcess->address);
+            // printf(" address = %d \n", currentProcess->address);
             receiveProcessValue(fromGenToSchPro, 500, to_receive, &message);
             int rec_val = 1;
             while (rec_val != -1)
             {
-                printf("Process received : at %d \n", getClk());
+                // printf("Process received : at %d \n", getClk());
                 *to_receive = message.p;
-                printProcess(to_receive);
-                printf("at %d finish = %d , finish_time =%d \n", getClk(), finish, finish_time);
+                // printProcess(to_receive);
+                // printf("at %d finish = %d , finish_time =%d \n", getClk(), finish, finish_time);
                 if (to_receive->last_process == 1)
                     last_process = 1;
                 // printf(" address = %d \n", currentProcess->address);
@@ -239,15 +239,15 @@ int main(int argc, char *argv[])
                         start_time_stat = getClk();
                     runnig_time_stat += to_receive->run_time;
                     count_stat++;
-                    printf("displaying scheduler queue before\n");
-                    display_queue(Q);
+                    // printf("displaying scheduler queue before\n");
+                    // display_queue(Q);
                     if (algorithm == 2)
                         insert_by_priority(Q, to_receive, 'r');
                     else if (algorithm == 3)
                         insert_by_priority(Q, to_receive, 'w');
                     // printf(" address = %d \n", currentProcess->address);
-                    printf("displaying scheduler queue \n");
-                    display_queue(Q);
+                    // printf("displaying scheduler queue \n");
+                    // display_queue(Q);
                     // printf("displaying scheduler queue after\n");
                 }
                 // printf("following1\n");
@@ -258,14 +258,14 @@ int main(int argc, char *argv[])
                 rec_val = receiveProcessValueNoWait(fromGenToSchPro, 500, to_receive, &message);
                 // printf("following3\n");
                 // display_queue(Q);
-                printf("rec_val %d \n", rec_val);
+                // printf("rec_val %d \n", rec_val);
                 // printf("following4\n");
                 // display_queue(Q);
             }
-            printf("passed nullity check at %d\n", getClk());
+            // printf("passed nullity check at %d\n", getClk());
             // printProcess(to_receive);
             // printf(" address = %d \n", currentProcess->address);
-            printProcess(currentProcess);
+            // printProcess(currentProcess);
             // printf("expression = %.2f \n",
             // (float) clock() /(float) CLOCKS_PER_SEC);
             // struct Process *temp;
@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
                     insert_by_priority(Q, currentProcess, 'w');
             }
             struct Process *toCompare = dequeue(Q);
-            printf("to compare at time %d :\n", getClk());
-            printProcess(toCompare);
+            // printf("to compare at time %d :\n", getClk());
+            // printProcess(toCompare);
             if (!toCompare)
             {
                 if (last_process)
@@ -307,11 +307,11 @@ int main(int argc, char *argv[])
             }
             if (toCompare != currentProcess)
             {
-                printf("tocompare!=current\n");
-                printf("process adderss=%d\n", currentProcess->address);
+                // printf("tocompare!=current\n");
+                // printf("process adderss=%d\n", currentProcess->address);
                 if (currentProcess->address != -1)
                 {
-                    printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                    // printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                     kill(currentProcess->address, SIGSTOP);
                     fprintf(fptr, "at time %d process %d stopped arr %d total %d remain %d wait %d \n",
                             getClk(),
@@ -337,11 +337,11 @@ int main(int argc, char *argv[])
                         execv(argv[0], argv);
                     }
                     currentProcess->address = process_id;
-                    printProcess(currentProcess);
+                    // printProcess(currentProcess);
                     key_t from_scheduler_to_process;
                     struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
                     sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
-                    printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
+                    // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     fprintf(fptr, "at time %d process %d started arr %d total %d remain %d wait %d \n",
                             getClk(),
                             currentProcess->id,
@@ -355,19 +355,19 @@ int main(int argc, char *argv[])
                     sleepDetrmine(algorithm, rr, currentProcess, &owner);
                     if (currentProcess->remaining_time != 0)
                     {
-                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        // printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                         kill(currentProcess->address, SIGSTOP);
                     }
-                    printf("i'm awaken at %d\n", getClk());
+                    // printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
                         if (algorithm == 2)
                         {
                             int pid, status;
-                            printf("waiting for status\n");
+                            // printf("waiting for status\n");
                             pid = wait(&status);
-                            if (!(status & 0x00FF))
-                                printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                            // if (!(status & 0x00FF))
+                            //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         }
                         currentProcess->finish_time = getClk();
                         currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
@@ -391,13 +391,13 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    printf("does it enter here ?\n");
+                    // printf("does it enter here ?\n");
                     key_t from_scheduler_to_process;
                     struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
                     sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
-                    printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
+                    // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     // printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                    printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                    // printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                     kill(currentProcess->address, SIGCONT);
                     fprintf(fptr, "at time %d process %d resumed arr %d total %d remain %d wait %d \n",
                             getClk(),
@@ -408,22 +408,22 @@ int main(int argc, char *argv[])
                             getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);
 
                     sleepDetrmine(algorithm, rr, currentProcess, &owner);
-                    printf("process address=%d\n", currentProcess->address);
+                    // printf("process address=%d\n", currentProcess->address);
                     if (currentProcess->remaining_time != 0)
                     {
-                        printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                        // printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                         kill(currentProcess->address, SIGSTOP);
                     }
-                    printf("i'm awaken at %d\n", getClk());
+                    // printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
                         if (algorithm == 2)
                         {
                             int pid, status;
-                            printf("waiting for status\n");
+                            // printf("waiting for status\n");
                             pid = wait(&status);
-                            if (!(status & 0x00FF))
-                                printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                            // if (!(status & 0x00FF))
+                            //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                         }
                         currentProcess->finish_time = getClk();
                         currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
@@ -449,26 +449,26 @@ int main(int argc, char *argv[])
                 key_t from_scheduler_to_process;
                 struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
                 sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
-                printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
+                // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                 // printf("i'm sleeping at %d for %d \n", getClk(), 1);
-                printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                // printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                 kill(currentProcess->address, SIGCONT);
                 sleepDetrmine(algorithm, rr, currentProcess, &owner);
                 if (currentProcess->remaining_time != 0)
                 {
-                    printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
+                    // printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                     kill(currentProcess->address, SIGSTOP);
                 }
-                printf("i'm awaken at %d\n", getClk());
+                // printf("i'm awaken at %d\n", getClk());
                 if (currentProcess->remaining_time == 0)
                 {
                     if (algorithm == 2)
                     {
                         int pid, status;
-                        printf("waiting for status\n");
+                        // printf("waiting for status\n");
                         pid = wait(&status);
-                        if (!(status & 0x00FF))
-                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        // if (!(status & 0x00FF))
+                        //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
                     }
                     currentProcess->finish_time = getClk();
                     currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
@@ -502,11 +502,11 @@ int main(int argc, char *argv[])
         // Program exits if the file pointer returns NULL.
         exit(1);
     }
-    printf("file is opened successfully\n");
-    printf("finish_time_stat %d ,start_time_stat %d ,runnig_time_stat %d\n", finish_time_stat, start_time_stat, runnig_time_stat);
+    // printf("file is opened successfully\n");
+    // printf("finish_time_stat %d ,start_time_stat %d ,runnig_time_stat %d\n", finish_time_stat, start_time_stat, runnig_time_stat);
     float cpu_utilization = (float)(finish_time_stat - start_time_stat) * 100.0 / (float)(runnig_time_stat);
     // printf("nouran \n");
-    printf("cpu utiliztioin = %.2f\n", cpu_utilization);
+    // printf("cpu utiliztioin = %.2f\n", cpu_utilization);
     // TODO:add percentage
     fprintf(fptr2, "CPU utiliztaion = %.2f %c\n", cpu_utilization, '%');
     for (int k = 0; k < Qserved->rear->arrival_time + 1; k++)
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
         total_WTA_stat += Qserved->pri_que[k]->WTA;
         total_waiting_stat += Qserved->pri_que[k]->waiting_time;
     }
-    printf("count = %d , total_WTA_stat = %.2f ,total_waiting_stat = %d \n", count_stat, total_WTA_stat, total_waiting_stat);
+    // printf("count = %d , total_WTA_stat = %.2f ,total_waiting_stat = %d \n", count_stat, total_WTA_stat, total_waiting_stat);
     avg_WTA_stat = (float)(total_WTA_stat) / (float)(count_stat);
     fprintf(fptr2, "Avg WTA = %.2f \n", avg_WTA_stat);
     avg_waiting_stat = (float)(total_waiting_stat) / (float)(count_stat);
