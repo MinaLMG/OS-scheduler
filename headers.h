@@ -511,11 +511,11 @@ struct msgIntBuff
     long mtype;
     int val;
 };
-void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send, struct msgIntBuff *message)
+void sendIntMesssage(key_t *queue_key, int get_value, int pid, int value_to_send, struct msgIntBuff *message)
 {
-    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    *queue_key = msgget(get_value, IPC_CREAT | 0644);
     // printf("queue key int value sender :%d \n", queue_key);
-    if (queue_key == -1)
+    if (*queue_key == -1)
     {
 
         // printf("surprise1");
@@ -529,18 +529,18 @@ void sendIntMesssage(key_t queue_key, int get_value, int pid, int value_to_send,
     // printf("surprise3 \n");
     message->val = value_to_send;
     // printf("surprise4 \n");
-    send_val = msgsnd(queue_key, message, sizeof(message->val), !IPC_NOWAIT);
+    send_val = msgsnd(*queue_key, message, sizeof(message->val), !IPC_NOWAIT);
 
     if (send_val == -1)
     {
         perror("Errror in send");
     }
 }
-void sendProcessMesssage(key_t queue_key, int get_value, int pid, struct Process process_to_send, struct msgProcessBuff *message)
+void sendProcessMesssage(key_t *queue_key, int get_value, int pid, struct Process process_to_send, struct msgProcessBuff *message)
 {
-    queue_key = msgget(get_value, IPC_CREAT | 0644);
+    *queue_key = msgget(get_value, IPC_CREAT | 0644);
     // printf("queue key value sender :%d \n", queue_key);
-    if (queue_key == -1)
+    if (*queue_key == -1)
     {
         perror("Error in create");
         exit(-1);
@@ -548,7 +548,7 @@ void sendProcessMesssage(key_t queue_key, int get_value, int pid, struct Process
     int send_val;
     message->mtype = pid % 10000; /* arbitrary value */
     message->p = process_to_send;
-    send_val = msgsnd(queue_key, message, sizeof(message->p), IPC_NOWAIT);
+    send_val = msgsnd(*queue_key, message, sizeof(message->p), IPC_NOWAIT);
 
     if (send_val == -1)
     {
@@ -654,6 +654,8 @@ void sleepDetrmine(int algorithm, int rr, struct Process *currentProcess, char *
             printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->remaining_time);
             // alarm(currentProcess->remaining_time);
             pause();
+            int pid, status;
+            pid = wait(&status);
             currentProcess->remaining_time = 0;
         }
     }
