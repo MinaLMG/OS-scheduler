@@ -3,11 +3,13 @@
 #include "time.h"
 key_t fromGenToSchAlg;
 key_t fromGenToSchPro;
-/*void handler(int signum)
+char owner = 'c';
+void handler(int signum)
 {
-    printf("i'm in the handler \n");
+    printf("i'm in the handler of sigusr1 \n");
+    owner = 'p';
     raise(SIGALRM);
-}*/
+}
 void alarmHandler(int signum)
 {
     printf("i'm in the handler \n");
@@ -15,7 +17,7 @@ void alarmHandler(int signum)
 int main(int argc, char *argv[])
 {
     initClk();
-    /*signal(SIGCHLD, handler);*/
+    signal(SIGUSR1, handler);
     signal(SIGALRM, alarmHandler);
     int start_time_stat = -1;
     int finish_time_stat;
@@ -350,7 +352,7 @@ int main(int argc, char *argv[])
                     // for(int k=0;k<Q->rear->arrival_time;k++){
                     //     Q->pri_que[k]->waiting_time++;
                     // }
-                    sleepDetrmine(algorithm, rr, currentProcess);
+                    sleepDetrmine(algorithm, rr, currentProcess, &owner);
                     if (currentProcess->remaining_time != 0)
                     {
                         printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -359,11 +361,14 @@ int main(int argc, char *argv[])
                     printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
-                        // int pid, status;
-                        // printf("waiting for status\n");
-                        // pid = wait(&status);
-                        // if (!(status & 0x00FF))
-                        //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        if (algorithm == 2)
+                        {
+                            int pid, status;
+                            printf("waiting for status\n");
+                            pid = wait(&status);
+                            if (!(status & 0x00FF))
+                                printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        }
                         currentProcess->finish_time = getClk();
                         currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
                         currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
@@ -402,7 +407,7 @@ int main(int argc, char *argv[])
                             currentProcess->remaining_time,
                             getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);
 
-                    sleepDetrmine(algorithm, rr, currentProcess);
+                    sleepDetrmine(algorithm, rr, currentProcess, &owner);
                     printf("process address=%d\n", currentProcess->address);
                     if (currentProcess->remaining_time != 0)
                     {
@@ -412,11 +417,14 @@ int main(int argc, char *argv[])
                     printf("i'm awaken at %d\n", getClk());
                     if (currentProcess->remaining_time == 0)
                     {
-                        // int pid, status;
-                        // printf("waiting for status\n");
-                        // pid = wait(&status);
-                        // if (!(status & 0x00FF))
-                        //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        if (algorithm == 2)
+                        {
+                            int pid, status;
+                            printf("waiting for status\n");
+                            pid = wait(&status);
+                            if (!(status & 0x00FF))
+                                printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                        }
                         currentProcess->finish_time = getClk();
                         currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
                         currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
@@ -445,7 +453,7 @@ int main(int argc, char *argv[])
                 // printf("i'm sleeping at %d for %d \n", getClk(), 1);
                 printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
                 kill(currentProcess->address, SIGCONT);
-                sleepDetrmine(algorithm, rr, currentProcess);
+                sleepDetrmine(algorithm, rr, currentProcess, &owner);
                 if (currentProcess->remaining_time != 0)
                 {
                     printf("sending sigstop to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -454,12 +462,14 @@ int main(int argc, char *argv[])
                 printf("i'm awaken at %d\n", getClk());
                 if (currentProcess->remaining_time == 0)
                 {
-                    // int pid, status;
-                    // printf("waiting for status\n");
-                    // pid = wait(&status);
-                    // if (!(status & 0x00FF))
-                    //     printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
-                    // removeMessageQueue();
+                    if (algorithm == 2)
+                    {
+                        int pid, status;
+                        printf("waiting for status\n");
+                        pid = wait(&status);
+                        if (!(status & 0x00FF))
+                            printf("\nA child with pid %d terminated with exit code %d\n\n", pid, status >> 8);
+                    }
                     currentProcess->finish_time = getClk();
                     currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
                     currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
