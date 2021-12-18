@@ -7,8 +7,8 @@ char owner = 'c';
 void handler(int signum)
 {
     // printf("i'm in the handler of sigusr1 \n");
-    owner = 'p';
-    raise(SIGALRM);
+    // owner = 'p';
+    // raise(SIGALRM);
 }
 void alarmHandler(int signum)
 {
@@ -177,6 +177,8 @@ int main(int argc, char *argv[])
             // printf("i'm sleeping at %d for %d \n", getClk(), currentProcess->run_time);
             // alarm(currentProcess->run_time);
             pause();
+            int pid, status;
+            pid = wait(&status);
             // printf("i'm awaken at %d\n", getClk());
             // int pid, status;
             // pid = wait(&status);
@@ -186,7 +188,7 @@ int main(int argc, char *argv[])
             key_t from_scheduler_to_process;
             struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
             // printf("%d \n", currentProcess->remaining_time);
-            sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+            // sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
             // printf("message to send : %d %d %d %d %d\n", from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message->val);
             // printProcess(currentProcess);
             // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
@@ -340,7 +342,7 @@ int main(int argc, char *argv[])
                     // printProcess(currentProcess);
                     key_t from_scheduler_to_process;
                     struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-                    sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+                    // sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                     // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     fprintf(fptr, "at time %d process %d started arr %d total %d remain %d wait %d \n",
                             getClk(),
@@ -394,7 +396,7 @@ int main(int argc, char *argv[])
                     // printf("does it enter here ?\n");
                     key_t from_scheduler_to_process;
                     struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-                    sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+                    // sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                     // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                     // printf("i'm sleeping at %d for %d \n", getClk(), 1);
                     // printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -448,7 +450,7 @@ int main(int argc, char *argv[])
             {
                 key_t from_scheduler_to_process;
                 struct msgIntBuff *int_message = (struct msgIntBuff *)malloc(sizeof(struct msgIntBuff));
-                sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
+                // sendIntMesssage(from_scheduler_to_process, currentProcess->address, getpid(), currentProcess->remaining_time, int_message);
                 // printf("\nMessage sent from scheduler at time %d : %d \n", getClk(), int_message->val);
                 // printf("i'm sleeping at %d for %d \n", getClk(), 1);
                 // printf("sending sigcont to id %d with pid %d at time %d\n", currentProcess->id, currentProcess->address, getClk());
@@ -531,6 +533,7 @@ int main(int argc, char *argv[])
     // sendIntMesssage(from_scheduler_to_generator, getppid(), getpid(), 1, int_message);
     // printf("\nMessage sent from generator to scheduler at time %d : %d \n", getClk(),int_message->val);
     destroyClk(false);
+    printf("removing \n");
     removeMessageQueue(fromGenToSchAlg);
     removeMessageQueue(fromGenToSchPro);
     return 0;
