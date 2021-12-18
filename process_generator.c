@@ -174,9 +174,9 @@ int main(int argc, char *argv[])
                     key_t fromGenToSchPro;
                     struct msgProcessBuff message;
                     sendProcessMesssage(fromGenToSchPro, 500, getpid(), *to_send, &message);
-                    if(algorithm==2){
-                        kill(schedulerId,SIGALRM);
-                    }
+                    // if(algorithm==2){
+                    //     kill(schedulerId,SIGUSR1);
+                    // }
                     printf("\nProcess sent at time %d:\n", x);
                     printProcess(&message.p);
                     to_send = dequeue(q);
