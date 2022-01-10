@@ -14,11 +14,64 @@ void alarmHandler(int signum)
 {
     // printf("i'm in the handler \n");
 }
+int memory[1024];
+void allocate(int *memory, int id, int size, int *address, int *k)
+{
+
+    printf("memory180 = %d \n", memory[180]);
+    *k = 1;
+    while (*k < size)
+    {
+        *k *= 2;
+    }
+    printf("k= %d \n", *k);
+    for (int i = 0; i < 1024; i += *k)
+    {
+        if (memory[i] == -1)
+        {
+            for (int j = i; j < i + *k; j++)
+            {
+                if (memory[j] != -1)
+                    continue;
+            }
+            printf("i= %d \n", i);
+            for (int j = i; j < i + *k; j++)
+            {
+                memory[j] = id;
+            }
+
+            *address = i;
+            // printf("memory i = %d \n", memory[i]);
+            break;
+        }
+    }
+}
+
+void deallocate(int *memory, int size, int address, int *k)
+{
+
+    printf("memory180 = %d \n", memory[180]);
+    *k = 1;
+    while (*k < size)
+    {
+        *k *= 2;
+    }
+    printf("k= %d \n", *k);
+    for (int j = address; j < address + *k; j++)
+    {
+        memory[j] = -1;
+    }
+}
 int main(int argc, char *argv[])
 {
     initClk();
     signal(SIGUSR1, handler);
     signal(SIGALRM, alarmHandler);
+    for (int i = 0; i < 1024; i++)
+    {
+        memory[i] = -1;
+    }
+    printf("memory180 = %d \n", memory[180]);
     int start_time_stat = -1;
     int finish_time_stat;
     int runnig_time_stat = 0;
@@ -32,6 +85,15 @@ int main(int argc, char *argv[])
     FILE *fptr;
     fptr = fopen("output.txt", "w");
     if (fptr == NULL)
+    {
+        printf("Error! opening file");
+
+        // Program exits if the file pointer returns NULL.
+        exit(1);
+    }
+    FILE *fptrTest;
+    fptrTest = fopen("output_test.txt", "w");
+    if (fptrTest == NULL)
     {
         printf("Error! opening file");
 
@@ -136,13 +198,32 @@ int main(int argc, char *argv[])
             currentProcess->finish_time = getClk() + currentProcess->run_time;
             currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
             finish_time_stat = currentProcess->finish_time;
-            fprintf(fptr, "at time %d process %d started arr %d total %d remain %d wait %d \n",
+            int reserved;
+            allocate(memory, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
+            fprintf(fptr, "at time  %d allocated %d for process %d from %d to %d \n",
+                    getClk(),
+                    currentProcess->mem_size,
+                    currentProcess->id,
+                    currentProcess->mem_address,
+                    currentProcess->mem_address + reserved - 1);
+            // fprintf(fptr, "address for %d is %d /n", currentProcess->id, currentProcess->mem_address);
+            /*for (int i = 0; i < 16; i++)
+            {
+                for (int j = 0; j < 64; j++)
+                {
+                    int d = i * 64 + j;
+                    printf("%d ", memory[d]);
+                }
+                printf("\n");
+            }*/
+            /*fprintf(fptr, "at time %d process %d started arr %d total %d remain %d wait %d \n",
                     getClk(),
                     currentProcess->id,
                     currentProcess->arrival_time,
                     currentProcess->run_time,
                     currentProcess->remaining_time,
-                    getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);
+                    getClk() - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time);*/
+
             int process_id = fork();
             if (process_id == 0)
             {
@@ -195,7 +276,17 @@ int main(int argc, char *argv[])
             currentProcess->remaining_time = 0;
             insert_by_priority(Qserved, currentProcess, 'w');
             currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
-            fprintf(fptr, "at time %d d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n",
+            int reserved2;
+            deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+            fprintf(fptr, "at time  %d deallocated %d for process %d from %d to %d \n",
+                    getClk(),
+                    currentProcess->mem_size,
+                    currentProcess->id,
+                    currentProcess->mem_address,
+                    currentProcess->mem_address + reserved2 - 1);
+
+            // fprintf(fptr, "address for %d is %d /n", currentProcess->id, currentProcess->mem_address);
+            /*fprintf(fptr, "at time %d d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n",
                     getClk(),
                     currentProcess->id,
                     currentProcess->arrival_time,
@@ -203,7 +294,7 @@ int main(int argc, char *argv[])
                     currentProcess->remaining_time,
                     currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time,
                     currentProcess->finish_time - currentProcess->arrival_time,
-                    (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
+                    (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);*/
             if (currentProcess->remaining_time == 0)
             {
                 if (currentProcess->last_process == 1)
@@ -354,6 +445,14 @@ int main(int argc, char *argv[])
                     // for(int k=0;k<Q->rear->arrival_time;k++){
                     //     Q->pri_que[k]->waiting_time++;
                     // }
+                    int reserved;
+                    allocate(memory, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
+                    fprintf(fptr, "at time  %d allocated %d for process %d from %d to %d \n",
+                            getClk(),
+                            currentProcess->mem_size,
+                            currentProcess->id,
+                            currentProcess->mem_address,
+                            currentProcess->mem_address + reserved - 1);
                     sleepDetrmine(algorithm, rr, currentProcess, &owner);
                     if (currentProcess->remaining_time != 0)
                     {
@@ -385,6 +484,14 @@ int main(int argc, char *argv[])
                                 currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time,
                                 currentProcess->finish_time - currentProcess->arrival_time,
                                 (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
+                        int reserved2;
+                        deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                        fprintf(fptr, "at time  %d deallocated %d for process %d from %d to %d \n",
+                                getClk(),
+                                currentProcess->mem_size,
+                                currentProcess->id,
+                                currentProcess->mem_address,
+                                currentProcess->mem_address + reserved2 - 1);
                         currentProcess = (struct Process *)malloc(sizeof(struct Process));
                         currentProcess->address = -1;
                     }
@@ -441,6 +548,14 @@ int main(int argc, char *argv[])
                                 currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time,
                                 currentProcess->finish_time - currentProcess->arrival_time,
                                 (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
+                        int reserved2;
+                        deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                        fprintf(fptr, "at time  %d deallocated %d for process %d from %d to %d \n",
+                                getClk(),
+                                currentProcess->mem_size,
+                                currentProcess->id,
+                                currentProcess->mem_address,
+                                currentProcess->mem_address + reserved2 - 1);
                         currentProcess = (struct Process *)malloc(sizeof(struct Process));
                         currentProcess->address = -1;
                     }
@@ -486,6 +601,14 @@ int main(int argc, char *argv[])
                             currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time,
                             currentProcess->finish_time - currentProcess->arrival_time,
                             (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
+                    int reserved2;
+                    deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                    fprintf(fptr, "at time  %d deallocated %d for process %d from %d to %d \n",
+                            getClk(),
+                            currentProcess->mem_size,
+                            currentProcess->id,
+                            currentProcess->mem_address,
+                            currentProcess->mem_address + reserved2 - 1);
                     currentProcess = (struct Process *)malloc(sizeof(struct Process));
                     currentProcess->address = -1;
                 }
