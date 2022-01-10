@@ -135,12 +135,14 @@ struct Process
     int last_process;
     int waiting_time;
     float WTA;
+    int mem_address;
+    int mem_size;
 };
 void printProcess(struct Process *p)
 {
     if (p != NULL && p->null != 100)
     {
-        printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n null= %d \n address= %d \n last process= %d \n ",
+        printf("the process has ... id = %d \n run_time = %d \n arrival_time = %d \n priority = %d \n remaining_time = %d \n finish_time= %d \n null= %d \n address= %d \n last process= %d\n memory address = %d\n memory size = %d\n ",
                p->id,
                p->run_time,
                p->arrival_time,
@@ -149,7 +151,9 @@ void printProcess(struct Process *p)
                p->finish_time,
                p->null,
                p->address,
-               p->last_process);
+               p->last_process,
+               p->mem_address,
+               p->mem_size);
     }
     else
     {
