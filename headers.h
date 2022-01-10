@@ -683,3 +683,50 @@ void removeMessageQueue(int msgqid)
 {
     msgctl(msgqid, IPC_RMID, (struct msqid_ds *)0);
 }
+void allocate(int *memory, int id, int size, int *address, int *k)
+{
+
+    // printf("memory180 = %d \n", memory[180]);
+    *k = 1;
+    while (*k < size)
+    {
+        *k *= 2;
+    }
+    // printf("k= %d \n", *k);
+    for (int i = 0; i < 1024; i += *k)
+    {
+        if (memory[i] == -1)
+        {
+            for (int j = i; j < i + *k; j++)
+            {
+                if (memory[j] != -1)
+                    continue;
+            }
+            // printf("i= %d \n", i);
+            for (int j = i; j < i + *k; j++)
+            {
+                memory[j] = id;
+            }
+
+            *address = i;
+            // printf("memory i = %d \n", memory[i]);
+            break;
+        }
+    }
+}
+
+void deallocate(int *memory, int size, int address, int *k)
+{
+
+    // printf("memory180 = %d \n", memory[180]);
+    *k = 1;
+    while (*k < size)
+    {
+        *k *= 2;
+    }
+    // printf("k= %d \n", *k);
+    for (int j = address; j < address + *k; j++)
+    {
+        memory[j] = -1;
+    }
+}
