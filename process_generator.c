@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
         fscanf(fptr, "%d", &p->priority);
 
         // printf("Value of priority =%d \n", (p->priority));
+        fscanf(fptr, "%d", &p->mem_size);
 
         p->remaining_time = p->run_time;
         p->finish_time = -1;
