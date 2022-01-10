@@ -683,7 +683,7 @@ void removeMessageQueue(int msgqid)
 {
     msgctl(msgqid, IPC_RMID, (struct msqid_ds *)0);
 }
-void allocate(int *memory, int id, int size, int *address, int *k)
+void allocate(int *memory, int *memory2, int id, int size, int *address, int *k)
 {
 
     // printf("memory180 = %d \n", memory[180]);
@@ -693,7 +693,41 @@ void allocate(int *memory, int id, int size, int *address, int *k)
         *k *= 2;
     }
     // printf("k= %d \n", *k);
-    for (int i = 0; i < 1024; i += *k)
+    int min = 5000;
+    int min_index = -1;
+    for (int i = 0; i < 1024; i++)
+    {
+        if (memory2[i] >= *k && memory2[i] < min && memory2[i] != -1)
+        {
+            min = memory2[i];
+            min_index = i;
+            printf("min %d min_index %d \n", min, min_index);
+        }
+    }
+    while (min / 2 >= *k)
+    {
+        memory2[min_index] = min / 2;
+        memory2[min / 2 + min_index] = min / 2;
+        min = min / 2;
+    }
+
+    for (int j = min_index; j < min_index + *k; j++)
+    {
+        memory[j] = id;
+    }
+    memory2[min_index] = -1;
+    *address = min_index;
+    // printf("min %d min_index %d \n", min, min_index);
+    // for (int i = 0; i < 16; i++)
+    // {
+    //     for (int j = 0; j < 64; j++)
+    //     {
+    //         int d = i * 64 + j;
+    //         printf("%d ", memory2[d]);
+    //     }
+    //     printf("\n");
+    // }
+    /*for (int i = 0; i < 1024; i += *k)
     {
         if (memory[i] == -1)
         {
@@ -712,10 +746,10 @@ void allocate(int *memory, int id, int size, int *address, int *k)
             // printf("memory i = %d \n", memory[i]);
             break;
         }
-    }
+    }*/
 }
 
-void deallocate(int *memory, int size, int address, int *k)
+void deallocate(int *memory, int *memory2, int size, int address, int *k)
 {
 
     // printf("memory180 = %d \n", memory[180]);
@@ -729,4 +763,69 @@ void deallocate(int *memory, int size, int address, int *k)
     {
         memory[j] = -1;
     }
+    // merging
+    int factor = *k;
+    // printf("memory180 = %d \n", memory[180]);
+    while (1)
+    {
+        int multiple = address / factor;
+
+        // printf("multple = %d \n", multiple);
+        // printf("address = %d \n", address);
+        // printf("Factor = %d \n", factor);
+        // for (int i = 0; i < 16; i++)
+        // {
+        //     for (int j = 0; j < 64; j++)
+        //     {
+        //         int d = i * 64 + j;
+        //         printf("%d ", memory2[d]);
+        //     }
+        //     printf("\n");
+        // }
+        if (multiple % 2 == 0)
+        {
+            // printf("even multiple \n");
+            if (address + factor > 1023)
+                break;
+            if (memory2[address + factor] == factor)
+            {
+                // printf("address + factor = %d \n", address + factor);
+                memory2[address + factor] = -1;
+                memory2[address] = 2 * factor;
+            }
+            else
+            {
+                memory2[address] = factor;
+                break;
+            }
+        }
+        else
+        {
+            // printf("odd multiple \n");
+            // if (address - factor < 0)
+            // break;
+            if (memory2[address - factor] == factor)
+            {
+                memory2[address - factor] = -1;
+                memory2[address] = 2 * factor;
+                address = address - factor;
+            }
+            else
+            {
+                memory2[address] = factor;
+                break;
+            }
+        }
+        factor *= 2;
+    }
+    // printf("after deallocation \n");
+    // for (int i = 0; i < 16; i++)
+    // {
+    //     for (int j = 0; j < 64; j++)
+    //     {
+    //         int d = i * 64 + j;
+    //         printf("%d ", memory2[d]);
+    //     }
+    //     printf("\n");
+    // }
 }
