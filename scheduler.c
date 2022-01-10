@@ -15,6 +15,7 @@ void alarmHandler(int signum)
     // printf("i'm in the handler \n");
 }
 int memory[1024];
+int memory2[1024];
 int main(int argc, char *argv[])
 {
     initClk();
@@ -23,7 +24,9 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 1024; i++)
     {
         memory[i] = -1;
+        memory2[i] = -1;
     }
+    memory2[0] = 1024;
     // printf("memory180 = %d \n", memory[180]);
     int start_time_stat = -1;
     int finish_time_stat;
@@ -153,7 +156,7 @@ int main(int argc, char *argv[])
             currentProcess->WTA = (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time;
             finish_time_stat = currentProcess->finish_time;
             int reserved;
-            allocate(memory, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
+            allocate(memory, memory2, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
             fprintf(fptr_a, "at time  %d allocated %d for process %d from %d to %d \n",
                     getClk(),
                     currentProcess->mem_size,
@@ -231,7 +234,7 @@ int main(int argc, char *argv[])
             insert_by_priority(Qserved, currentProcess, 'w');
             currentProcess->waiting_time = currentProcess->finish_time - currentProcess->arrival_time - currentProcess->run_time + currentProcess->remaining_time;
             int reserved2;
-            deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+            deallocate(memory, memory2, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
             fprintf(fptr_a, "at time  %d deallocated %d for process %d from %d to %d \n",
                     getClk(),
                     currentProcess->mem_size,
@@ -400,7 +403,7 @@ int main(int argc, char *argv[])
                     //     Q->pri_que[k]->waiting_time++;
                     // }
                     int reserved;
-                    allocate(memory, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
+                    allocate(memory, memory2, currentProcess->id, currentProcess->mem_size, &currentProcess->mem_address, &reserved);
                     fprintf(fptr_a, "at time  %d allocated %d for process %d from %d to %d \n",
                             getClk(),
                             currentProcess->mem_size,
@@ -439,7 +442,7 @@ int main(int argc, char *argv[])
                                 currentProcess->finish_time - currentProcess->arrival_time,
                                 (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
                         int reserved2;
-                        deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                        deallocate(memory, memory2, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
                         fprintf(fptr_a, "at time  %d deallocated %d for process %d from %d to %d \n",
                                 getClk(),
                                 currentProcess->mem_size,
@@ -503,7 +506,7 @@ int main(int argc, char *argv[])
                                 currentProcess->finish_time - currentProcess->arrival_time,
                                 (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
                         int reserved2;
-                        deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                        deallocate(memory, memory2, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
                         fprintf(fptr_a, "at time  %d deallocated %d for process %d from %d to %d \n",
                                 getClk(),
                                 currentProcess->mem_size,
@@ -556,7 +559,7 @@ int main(int argc, char *argv[])
                             currentProcess->finish_time - currentProcess->arrival_time,
                             (float)(currentProcess->finish_time - currentProcess->arrival_time) / (float)currentProcess->run_time);
                     int reserved2;
-                    deallocate(memory, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
+                    deallocate(memory, memory2, currentProcess->mem_size, currentProcess->mem_address, &reserved2);
                     fprintf(fptr_a, "at time  %d deallocated %d for process %d from %d to %d \n",
                             getClk(),
                             currentProcess->mem_size,
