@@ -1,7 +1,11 @@
 at time x allocated y bytes for process z from i to j 
-at time  2 allocated 25 for process 1 from 0 to 31 
-at time  5 allocated 15 for process 2 from 32 to 47 
-at time  14 deallocated 25 for process 1 from 0 to 31 
-at time  18 allocated 12 for process 3 from 48 to 63 
-at time  25 deallocated 15 for process 2 from 32 to 47 
-at time  28 deallocated 12 for process 3 from 48 to 63 
+at time  3 allocated 200 for process 1 from 0 to 255 
+at time  6 allocated 30 for process 2 from 256 to 287 
+at time  11 allocated 55 for process 3 from 320 to 383 
+at time  15 deallocated 30 for process 2 from 256 to 287 
+at time  18 deallocated 55 for process 3 from 320 to 383 
+at time  18 allocated 14 for process 4 from 256 to 271 
+at time  22 deallocated 200 for process 1 from 0 to 255 
+at time  40 deallocated 14 for process 4 from 256 to 271 
+at time  40 allocated 300 for process 5 from 0 to 511 
+at time  45 deallocated 300 for process 5 from 0 to 511 

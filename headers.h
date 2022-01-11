@@ -701,7 +701,7 @@ void allocate(int *memory, int *memory2, int id, int size, int *address, int *k)
         {
             min = memory2[i];
             min_index = i;
-            printf("min %d min_index %d \n", min, min_index);
+            // printf("min %d min_index %d \n", min, min_index);
         }
     }
     while (min / 2 >= *k)
@@ -717,71 +717,26 @@ void allocate(int *memory, int *memory2, int id, int size, int *address, int *k)
     }
     memory2[min_index] = -1;
     *address = min_index;
-    // printf("min %d min_index %d \n", min, min_index);
-    // for (int i = 0; i < 16; i++)
-    // {
-    //     for (int j = 0; j < 64; j++)
-    //     {
-    //         int d = i * 64 + j;
-    //         printf("%d ", memory2[d]);
-    //     }
-    //     printf("\n");
-    // }
-    /*for (int i = 0; i < 1024; i += *k)
-    {
-        if (memory[i] == -1)
-        {
-            for (int j = i; j < i + *k; j++)
-            {
-                if (memory[j] != -1)
-                    continue;
-            }
-            // printf("i= %d \n", i);
-            for (int j = i; j < i + *k; j++)
-            {
-                memory[j] = id;
-            }
-
-            *address = i;
-            // printf("memory i = %d \n", memory[i]);
-            break;
-        }
-    }*/
 }
 
 void deallocate(int *memory, int *memory2, int size, int address, int *k)
 {
 
-    // printf("memory180 = %d \n", memory[180]);
     *k = 1;
     while (*k < size)
     {
         *k *= 2;
     }
-    // printf("k= %d \n", *k);
     for (int j = address; j < address + *k; j++)
     {
         memory[j] = -1;
     }
     // merging
     int factor = *k;
-    // printf("memory180 = %d \n", memory[180]);
     while (1)
     {
         int multiple = address / factor;
 
-        // printf("multple = %d \n", multiple);
-        // printf("address = %d \n", address);
-        // printf("Factor = %d \n", factor);
-        // for (int i = 0; i < 16; i++)
-        // {
-        //     for (int j = 0; j < 64; j++)
-        //     {
-        //         int d = i * 64 + j;
-        //         printf("%d ", memory2[d]);
-        //     }
-        //     printf("\n");
-        // }
         if (multiple % 2 == 0)
         {
             // printf("even multiple \n");
@@ -801,13 +756,11 @@ void deallocate(int *memory, int *memory2, int size, int address, int *k)
         }
         else
         {
-            // printf("odd multiple \n");
-            // if (address - factor < 0)
-            // break;
+
             if (memory2[address - factor] == factor)
             {
-                memory2[address - factor] = -1;
-                memory2[address] = 2 * factor;
+                memory2[address - factor] = 2 * factor;
+                memory2[address] = -1;
                 address = address - factor;
             }
             else
@@ -818,14 +771,4 @@ void deallocate(int *memory, int *memory2, int size, int address, int *k)
         }
         factor *= 2;
     }
-    // printf("after deallocation \n");
-    // for (int i = 0; i < 16; i++)
-    // {
-    //     for (int j = 0; j < 64; j++)
-    //     {
-    //         int d = i * 64 + j;
-    //         printf("%d ", memory2[d]);
-    //     }
-    //     printf("\n");
-    // }
 }
